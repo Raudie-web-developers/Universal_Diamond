@@ -2,76 +2,90 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <title>Universal Gold - Joyas Artesanales</title>
+  <title>{% block title %}Universal Diamond — B2B Certified Diamonds{% endblock %}</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Joyería artesanal en oro 18k. Anillos, brazaletes, cadenas, argollas y más. Compra segura por WhatsApp.">
+  <meta name="description" content="{% block meta_desc %}Universal Diamond: Plataforma B2B para la compra de diamantes naturales y lab-grown certificados por GIA, IGI y HRD.{% endblock %}">
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Bootstrap -->
+  <!-- Bootstrap + Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <!-- Design System -->
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
   <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500&family=Silver+Queeny&display=swap">
 
   {% block extra_head %}{% endblock %}
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-<!-- GTM -->
-<noscript>
-  <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N55RN4TW"
-          height="0" width="0" style="display:none;visibility:hidden"></iframe>
-</noscript>
-
 <!-- ═══════════════════════════════════════════════════
      HEADER
 ════════════════════════════════════════════════════ -->
-<header class="header {% block header_class %}{% endblock %}" id="mainHeader">
+<header class="header" id="mainHeader">
   <div class="header-inner">
+
     <!-- Logo -->
-    <a href="{% url 'index' %}" class="header-logo">
-      <img src="{% static 'images/logo.png' %}" alt="Universal Gold">
+    <a href="{% url 'index' %}" class="header-logo d-flex align-items-center gap-3 text-decoration-none">
+      <!-- Custom SVG diamond icon -->
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="18,3 33,12 33,24 18,33 3,24 3,12" fill="none" stroke="url(#diamondGrad)" stroke-width="1.2"/>
+        <polygon points="18,3 26,12 18,21 10,12" fill="none" stroke="url(#diamondGrad)" stroke-width="0.8" opacity="0.6"/>
+        <line x1="3" y1="12" x2="33" y2="12" stroke="url(#diamondGrad)" stroke-width="0.8" opacity="0.5"/>
+        <line x1="10" y1="12" x2="18" y2="33" stroke="url(#diamondGrad)" stroke-width="0.6" opacity="0.4"/>
+        <line x1="26" y1="12" x2="18" y2="33" stroke="url(#diamondGrad)" stroke-width="0.6" opacity="0.4"/>
+        <defs>
+          <linearGradient id="diamondGrad" x1="3" y1="3" x2="33" y2="33" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#E2E8F0"/>
+            <stop offset="50%" stop-color="#C4CCDA"/>
+            <stop offset="100%" stop-color="#8A96AA"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="d-flex flex-column lh-1">
+        <span class="header-brand-name">UNIVERSAL</span>
+        <span class="header-brand-sub">DIAMOND</span>
+      </div>
     </a>
 
-    <!-- Desktop Nav — se oculta en < 992px -->
-    <nav class="header-nav d-none d-lg-flex">
-      <a href="{% url 'index' %}#heroSection"    class="nav-link">Inicio</a>
-      <a href="{% url 'index' %}#categorias"               class="nav-link">Joyas</a>
-      <a href="{% url 'index' %}#nosotros"       class="nav-link">Nuestra Historia</a>
-      <a href="{% url 'index' %}#servicios"      class="nav-link">Servicios</a>
-      <a href="{% url 'index' %}#personalizada"  class="nav-link">Personalizada</a>
-      <a href="{% url 'index' %}#vip"            class="nav-link">VIP</a>
-      <a href="{% url 'index' %}#contacto"       class="nav-link">Contacto</a>
-      <a href="{% url 'orden' %}" class="btn-cart-header ms-3">
-        <i class="fas fa-shopping-bag"></i>
-        <span>Carrito</span>
+    <!-- Desktop Nav -->
+    <nav class="header-nav d-none d-lg-flex align-items-center">
+      <a href="{% url 'index' %}" class="nav-link">Inicio</a>
+      <a href="{% url 'tienda' %}" class="nav-link nav-link--accent">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        Buscador de Diamantes
+      </a>
+      <a href="{% url 'index' %}#formas" class="nav-link">Cortes &amp; Formas</a>
+      <a href="{% url 'index' %}#certificaciones" class="nav-link">GIA / IGI</a>
+      <a href="{% url 'orden' %}" class="btn-cart-header ms-3" id="cartHeaderBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <span>Orden Diamantes</span>
         {% if cart_count > 0 %}
           <span class="badge-cart">{{ cart_count }}</span>
         {% endif %}
       </a>
     </nav>
 
-    <!-- Carrito visible en tablet + hamburger — ambos en < 992px -->
+    <!-- Mobile actions -->
     <div class="d-flex d-lg-none align-items-center gap-3">
-      <a href="{% url 'orden' %}" class="btn-cart-header" style="position:relative;">
-        <i class="fas fa-shopping-bag"></i>
-        <span>Carrito</span>
-        {% if cart_count > 0 %}
-          <span class="badge-cart">{{ cart_count }}</span>
-        {% endif %}
+      <a href="{% url 'orden' %}" class="btn-cart-header">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <span>Orden</span>
+        {% if cart_count > 0 %}<span class="badge-cart">{{ cart_count }}</span>{% endif %}
       </a>
       <button class="btn-mobile-toggle"
               type="button"
@@ -86,55 +100,51 @@
 </header>
 
 <!-- ═══════════════════════════════════════════════════
-     MOBILE MENU
+     MOBILE MENU OFFCANVAS
 ════════════════════════════════════════════════════ -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
   <div class="offcanvas-header">
-    <span class="offcanvas-title" id="mobileMenuLabel">Universal Gold</span>
+    <div class="d-flex align-items-center gap-2">
+      <svg width="22" height="22" viewBox="0 0 36 36" fill="none">
+        <polygon points="18,3 33,12 33,24 18,33 3,24 3,12" fill="none" stroke="#C4CCDA" stroke-width="1.2"/>
+        <polygon points="18,3 26,12 18,21 10,12" fill="none" stroke="#C4CCDA" stroke-width="0.8" opacity="0.6"/>
+        <line x1="3" y1="12" x2="33" y2="12" stroke="#C4CCDA" stroke-width="0.8" opacity="0.5"/>
+      </svg>
+      <span class="offcanvas-title" id="mobileMenuLabel">Universal Diamond</span>
+    </div>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
   </div>
   <div class="offcanvas-body d-flex flex-column">
     <nav class="flex-grow-1 pt-2">
       <a href="{% url 'index' %}" class="mobile-nav-link">
-        <i class="fas fa-home me-3" style="color:var(--gold);width:16px;"></i>Inicio
+        <i class="fas fa-home" style="width:18px;"></i>Inicio
       </a>
-      <a href="{% url 'index' %}#nosotros" class="mobile-nav-link">
-        <i class="fas fa-book-open me-3" style="color:var(--gold);width:16px;"></i>Nuestra Historia
+      <a href="{% url 'tienda' %}" class="mobile-nav-link fw-bold">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M6 3h12l4 6-10 13L2 9z"/><path d="M2 9h20M6 3l4 6 2-6 2 6 4-6"/>
+        </svg>
+        Buscador de Diamantes
       </a>
-      <a href="{% url 'tienda' %}" class="mobile-nav-link">
-        <i class="fas fa-gem me-3" style="color:var(--gold);width:16px;"></i>Joyas
+      <a href="{% url 'index' %}#formas" class="mobile-nav-link">
+        <i class="fas fa-shapes" style="width:18px;"></i>Cortes &amp; Formas
       </a>
-      <a href="{% url 'index' %}#servicios" class="mobile-nav-link">
-        <i class="fas fa-tools me-3" style="color:var(--gold);width:16px;"></i>Servicios
-      </a>
-      <a href="{% url 'personalizada' %}" class="mobile-nav-link">
-        <i class="fas fa-ring me-3" style="color:var(--gold);width:16px;"></i>Personalizada
-      </a>
-      <a href="{% url 'vip' %}" class="mobile-nav-link">
-        <i class="fas fa-crown me-3" style="color:var(--gold);width:16px;"></i>VIP
-      </a>
-      <a href="{% url 'index' %}#contacto" class="mobile-nav-link">
-        <i class="fas fa-envelope me-3" style="color:var(--gold);width:16px;"></i>Contacto
+      <a href="{% url 'index' %}#certificaciones" class="mobile-nav-link">
+        <i class="fas fa-certificate" style="width:18px;"></i>GIA / IGI
       </a>
       <a href="{% url 'orden' %}" class="mobile-nav-link">
-        <i class="fas fa-shopping-bag me-3" style="color:var(--gold);width:16px;"></i>
-        Carrito {% if cart_count > 0 %}({{ cart_count }}){% endif %}
+        <i class="fas fa-shopping-bag" style="width:18px;"></i>
+        Mi Orden {% if cart_count > 0 %}<span class="badge-cart ms-auto">{{ cart_count }}</span>{% endif %}
       </a>
     </nav>
 
-    <div class="p-4 border-top" style="border-color:var(--border)!important;">
-      <p class="eyebrow mb-3">Síguenos</p>
+    <!-- Social links in mobile menu -->
+    <div class="p-3 border-top" style="border-color:rgba(196,204,218,0.12)!important;">
+      <p class="eyebrow mb-3" style="color:#5A6375;">Síguenos</p>
       <div class="footer-social">
-        <a href="https://instagram.com/universalgold.ve" target="_blank" rel="noopener" title="Instagram">
-          <i class="fab fa-instagram"></i>
-        </a>
-        <a href="https://www.tiktok.com/@universalgold" target="_blank" rel="noopener" title="TikTok">
-          <i class="fab fa-tiktok"></i>
-        </a>
+        <a href="https://instagram.com/universaldiamond" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.tiktok.com/@universaldiamond" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
         {% if whatsapp_url %}
-        <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" title="WhatsApp">
-          <i class="fab fa-whatsapp"></i>
-        </a>
+        <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
         {% endif %}
       </div>
     </div>
@@ -162,7 +172,7 @@
   {% block content %}{% endblock %}
 </main>
 
-<!-- ─── WHATSAPP FLOAT ──────────────────────────────── -->
+<!-- ─── WhatsApp Float ──────────────────────────────── -->
 {% if whatsapp_url %}
 <a href="{{ whatsapp_url }}" class="whatsapp-float" target="_blank" rel="noopener" title="WhatsApp">
   <i class="fab fa-whatsapp"></i>
@@ -174,74 +184,100 @@
 ════════════════════════════════════════════════════ -->
 <footer class="footer">
   <div class="container">
-    <div class="row g-5 mb-4">
+    <div class="row g-5 mb-5">
 
       <!-- Brand -->
       <div class="col-md-4">
-        <div class="footer-brand">
-          <img src="{% static 'images/Logo-2.png' %}" alt="Universal Gold">
+        <div class="footer-brand mb-4">
+          <div class="d-flex align-items-center gap-3">
+            <svg width="40" height="40" viewBox="0 0 36 36" fill="none">
+              <polygon points="18,3 33,12 33,24 18,33 3,24 3,12" fill="none" stroke="url(#footerGrad)" stroke-width="1.2"/>
+              <polygon points="18,3 26,12 18,21 10,12" fill="none" stroke="url(#footerGrad)" stroke-width="0.8" opacity="0.6"/>
+              <line x1="3" y1="12" x2="33" y2="12" stroke="url(#footerGrad)" stroke-width="0.8" opacity="0.5"/>
+              <defs>
+                <linearGradient id="footerGrad" x1="3" y1="3" x2="33" y2="33">
+                  <stop offset="0%" stop-color="#D6DFE8"/>
+                  <stop offset="100%" stop-color="#8A96AA"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="lh-1">
+              <div style="font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:400; color:#D6DFE8; letter-spacing:0.18em;">UNIVERSAL</div>
+              <div style="font-size:0.6rem; color:#5A6375; letter-spacing:0.38em; font-weight:600; text-transform:uppercase; margin-top:2px;">DIAMOND</div>
+            </div>
+          </div>
         </div>
         <p class="footer-desc">
-          Especialistas en joyería artesanal de oro 18k. Cada pieza refleja elegancia, precisión y carácter venezolano.
+          Plataforma B2B especializada en diamantes certificados GIA, IGI y HRD. Cada gema seleccionada para cumplir con los más altos estándares de calidad.
         </p>
-        <div class="footer-social">
-          <a href="https://instagram.com/universalgold.ve" target="_blank" rel="noopener" title="Instagram">
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a href="https://www.tiktok.com/@universalgold" target="_blank" rel="noopener" title="TikTok">
-            <i class="fab fa-tiktok"></i>
-          </a>
+        <div class="footer-social mt-4">
+          <a href="https://instagram.com/universaldiamond" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.tiktok.com/@universaldiamond" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
           {% if whatsapp_url %}
-          <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" title="WhatsApp">
-            <i class="fab fa-whatsapp"></i>
-          </a>
+          <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
           {% endif %}
         </div>
       </div>
 
-      <!-- Tienda -->
+      <!-- Inventario -->
       <div class="col-md-2 col-6">
-        <span class="footer-col-title">Tienda</span>
+        <span class="footer-col-title">Diamantes</span>
         <a href="{% url 'tienda' %}" class="footer-link">Catálogo Completo</a>
-        {% for cat in categorias %}
-          <a href="{% url 'tienda' %}?categoria={{ cat.id }}" class="footer-link">
-            {{ cat.nombre }}
-          </a>
-        {% endfor %}
+        <a href="{% url 'tienda' %}?shape=ROUND" class="footer-link">Round</a>
+        <a href="{% url 'tienda' %}?shape=OVAL" class="footer-link">Oval</a>
+        <a href="{% url 'tienda' %}?shape=CUSHION" class="footer-link">Cushion</a>
+        <a href="{% url 'tienda' %}?shape=EMERALD" class="footer-link">Emerald</a>
+        <a href="{% url 'tienda' %}?shape=PRINCESS" class="footer-link">Princess</a>
       </div>
 
-      <!-- Información -->
+      <!-- Certificaciones -->
       <div class="col-md-2 col-6">
-        <span class="footer-col-title">Información</span>
-        <a href="{% url 'index' %}" class="footer-link">Inicio</a>
-        <a href="{% url 'orden' %}" class="footer-link">Mi Carrito</a>
+        <span class="footer-col-title">Certificaciones</span>
+        <a href="{% url 'tienda' %}?lab=GIA" class="footer-link">GIA Certified</a>
+        <a href="{% url 'tienda' %}?lab=IGI" class="footer-link">IGI Certified</a>
+        <a href="{% url 'tienda' %}?lab=HRD" class="footer-link">HRD Certified</a>
+        <a href="{% url 'index' %}#certificaciones" class="footer-link">Sobre las Cert.</a>
+        <a href="{% url 'orden' %}" class="footer-link">Mi Orden</a>
       </div>
 
       <!-- Contacto -->
       <div class="col-md-4">
-        <span class="footer-col-title">Contacto</span>
+        <span class="footer-col-title">Contacto B2B</span>
         {% if whatsapp_url %}
         <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" class="footer-contact-item">
           <i class="fab fa-whatsapp"></i>
           <span>{{ whatsapp_number|default:'+58 (424) 123.2838' }}</span>
         </a>
         {% endif %}
-        <a href="mailto:info@universalgold.net" class="footer-contact-item">
+        <a href="mailto:info@universaldiamond.net" class="footer-contact-item">
           <i class="fas fa-envelope"></i>
-          <span>info@universalgold.net</span>
+          <span>info@universaldiamond.net</span>
         </a>
         <div class="footer-contact-item">
           <i class="fas fa-map-marker-alt"></i>
           <span>CC Tolón Fashion Mall, Piso 5, Local 5–05<br>Av. Principal Las Mercedes, Caracas</span>
         </div>
+
+        <!-- Certifications micro logos in footer -->
+        <div class="d-flex gap-2 mt-4">
+          <span class="footer-cert-badge">GIA</span>
+          <span class="footer-cert-badge">IGI</span>
+          <span class="footer-cert-badge">HRD</span>
+          <span class="footer-cert-badge">B2B</span>
+        </div>
       </div>
 
     </div>
 
+    <!-- Luxury divider -->
+    <div class="footer-divider">
+      <span>◇</span>
+    </div>
+
     <div class="footer-bottom">
-      <span class="footer-copy">&copy; {{ now|date:"Y" }} Universal Gold. Todos los derechos reservados.</span>
+      <span class="footer-copy">&copy; {{ now|date:"Y" }} Universal Diamond. Todos los derechos reservados.</span>
       <span class="footer-credits">
-        Diseñado por <a href="https://raudie.net" target="_blank" rel="noopener">Raudie</a>
+        Plataforma diseñada por <a href="https://raudie.net" target="_blank" rel="noopener">Raudie</a>
       </span>
     </div>
   </div>
@@ -250,6 +286,21 @@
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/main.js' %}"></script>
+
+<script>
+  // Sticky header with scroll effect
+  (function() {
+    const header = document.getElementById('mainHeader');
+    if (!header) return;
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 40) {
+        header.classList.add('header-sticky');
+      } else {
+        header.classList.remove('header-sticky');
+      }
+    }, { passive: true });
+  })();
+</script>
 
 {% block extra_scripts %}{% endblock %}
 </body>

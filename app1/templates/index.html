@@ -1,630 +1,245 @@
 {% extends 'base_index.html' %}
 {% load static %}
 
-{% block title %}Universal Gold — Joyería Artesanal en Oro 18k{% endblock %}
-
-{% block extra_head %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap">
-<link rel="preload"
-      as="image"
-      fetchpriority="high"
-      href="https://joyeriafinarte.com/wp-content/uploads/2023/11/Compra-y-Venta-Oro-Joyas-Madrid-Finarte.jpg">
-{% endblock %}
+{% block title %}Universal Diamond — B2B Certified Diamond Platform{% endblock %}
+{% block meta_desc %}Universal Diamond: Plataforma B2B para la compra de diamantes naturales y lab-grown certificados por GIA, IGI y HRD en tiempo real.{% endblock %}
 
 {% block content %}
 
 <!-- ═══════════════════════════════════════════════════
      HERO
 ════════════════════════════════════════════════════ -->
-<section class="hero" id="heroSection">
-
-  <div class="hero-slides">
-    <div class="hero-slide active"
-         style="background-image:url('https://joyeriafinarte.com/wp-content/uploads/2023/11/Compra-y-Venta-Oro-Joyas-Madrid-Finarte.jpg');"></div>
-    <div class="hero-slide"
-         style="background-image:url('https://caratijoyeria.com/wp-content/uploads/2025/05/collares-carati.jpg');"></div>
-    <div class="hero-slide"
-         style="background-image:url('https://st4.depositphotos.com/13194036/26357/i/450/depositphotos_263572010-stock-photo-young-nude-woman-golden-rings.jpg');"></div>
+<section class="hero">
+  <!-- Ambient sparkles -->
+  <div class="hero-particles" aria-hidden="true">
+    <span class="particle p1">✦</span>
+    <span class="particle p2">◆</span>
+    <span class="particle p3">✦</span>
+    <span class="particle p4">◇</span>
+    <span class="particle p5">✦</span>
+    <span class="particle p6">◆</span>
   </div>
 
-  <div class="container h-100">
-    <div class="hero-content">
-      <span class="eyebrow hero-eyebrow">Joyería Artesanal · Oro 18k</span>
-      <h1>Piezas que<br><em>trascienden</em></h1>
-      <p>Cada joya es una obra creada a mano con oro puro. Colección exclusiva diseñada para durar generaciones.</p>
-      <div class="hero-btns">
-        <a href="{% url 'tienda' %}" class="btn btn-primary">
-          <span>Explorar Catálogo</span>
-          <i class="fas fa-arrow-right"></i>
-        </a>
-        <a href="#categorias" class="btn btn-ghost">
-          <span>Ver Categorías</span>
-        </a>
+  <div class="container position-relative z-1">
+    <div class="row align-items-center g-5 py-5">
+      <div class="col-lg-6">
+        <span class="hero-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9z"/></svg>
+          Plataforma B2B de Diamantes Certificados
+        </span>
+        <h1 class="hero-title">
+          Diamantes de<br>
+          Pureza <em class="hero-title-accent">Excepcional</em>
+        </h1>
+        <p class="hero-subtitle">
+          Accede al inventario B2B global en vivo de diamantes naturales y lab-grown certificados por GIA, IGI y HRD con inspección HD y trazabilidad garantizada.
+        </p>
+        <div class="hero-actions">
+          <a href="{% url 'tienda' %}" class="btn-primary-luxury">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Buscar Diamantes
+          </a>
+          <a href="#formas" class="btn-secondary-luxury">
+            Ver Cortes &amp; Formas
+          </a>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="hero-dots">
-    <button class="hero-dot active" data-index="0" aria-label="Slide 1"></button>
-    <button class="hero-dot" data-index="1" aria-label="Slide 2"></button>
-    <button class="hero-dot" data-index="2" aria-label="Slide 3"></button>
-  </div>
-
-</section>
-
-<!-- ═══════════════════════════════════════════════════
-     CATEGORÍAS EN CÍRCULOS
-════════════════════════════════════════════════════ -->
-{% if categorias %}
-<section class="cat-circles-section cat-circles-section--index" id="categorias">
-  <div class="container">
-
-    <div class="cat-circles-header reveal">
-      <span class="eyebrow">Colecciones</span>
-      <h2>Explora nuestras <em>Categorías</em></h2>
-      <div class="gold-rule"></div>
-    </div>
-
-    <div class="cat-circles-track">
-      {% for cat in categorias %}
-        <a href="{% url 'tienda' %}?categoria={{ cat.id }}" class="cat-circle-item reveal">
-          <div class="cat-circle-wrap">
-            <div class="cat-circle-img-outer">
-              {% if cat.icono %}
-                <img src="{{ cat.icono.url }}" alt="{{ cat.nombre }}">
-              {% else %}
-                <i class="fas fa-tag" style="font-size:1.6rem;color:var(--gold-dim);"></i>
-              {% endif %}
-              <div class="cat-circle-overlay"></div>
+      <div class="col-lg-6 text-center">
+        <div class="hero-card">
+          <!-- Diamond SVG showcase -->
+          <div class="hero-diamond-icon">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="50,8 88,30 88,70 50,92 12,70 12,30" fill="none" stroke="url(#hg1)" stroke-width="1.5"/>
+              <polygon points="50,8 70,30 50,55 30,30" fill="none" stroke="url(#hg1)" stroke-width="1" opacity="0.7"/>
+              <line x1="12" y1="30" x2="88" y2="30" stroke="url(#hg1)" stroke-width="1" opacity="0.5"/>
+              <line x1="30" y1="30" x2="50" y2="92" stroke="url(#hg1)" stroke-width="0.8" opacity="0.4"/>
+              <line x1="70" y1="30" x2="50" y2="92" stroke="url(#hg1)" stroke-width="0.8" opacity="0.4"/>
+              <line x1="50" y1="55" x2="12" y2="70" stroke="url(#hg1)" stroke-width="0.6" opacity="0.3"/>
+              <line x1="50" y1="55" x2="88" y2="70" stroke="url(#hg1)" stroke-width="0.6" opacity="0.3"/>
+              <!-- Sparkle glints -->
+              <circle cx="50" cy="8" r="2" fill="#E2E8F0" opacity="0.9"/>
+              <circle cx="88" cy="30" r="1.5" fill="#C4CCDA" opacity="0.7"/>
+              <circle cx="30" cy="30" r="1" fill="#C4CCDA" opacity="0.5"/>
+              <defs>
+                <linearGradient id="hg1" x1="12" y1="8" x2="88" y2="92" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#E2E8F0"/>
+                  <stop offset="50%" stop-color="#C4CCDA"/>
+                  <stop offset="100%" stop-color="#6B7A90"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h4 class="hero-card-title">Inventario Live Nivoda API</h4>
+          <p class="hero-card-sub">Precios B2B competitivos, verificación GIA en tiempo real y asistencia directa.</p>
+          <div class="hero-card-stats">
+            <div class="hero-stat">
+              <strong>GIA/IGI</strong>
+              <span>100% Certificados</span>
+            </div>
+            <div class="hero-stat-divider">◇</div>
+            <div class="hero-stat">
+              <strong>360°</strong>
+              <span>Inspección HD</span>
+            </div>
+            <div class="hero-stat-divider">◇</div>
+            <div class="hero-stat">
+              <strong>B2B</strong>
+              <span>Precios Mayoristas</span>
             </div>
           </div>
-          <span class="cat-circle-label">{{ cat.nombre }}</span>
-        </a>
-      {% endfor %}
+        </div>
+      </div>
     </div>
+  </div>
 
+  <div class="hero-scroll-indicator">
+    <span>Explorar</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
 </section>
-{% endif %}
 
 <!-- ═══════════════════════════════════════════════════
-     FEATURED PRODUCTS
+     DIAMOND SHAPES SHOWCASE
 ════════════════════════════════════════════════════ -->
-<section class="section" id="destacados" style="background:var(--ink);">
+<section id="formas" class="shapes-section py-6">
   <div class="container">
+    <div class="section-header text-center mb-5">
+      <span class="section-eyebrow">Cortes de Diamantes</span>
+      <h2 class="section-title">Encuentra tu <em class="section-accent">Forma Perfecta</em></h2>
+      <div class="section-divider"><span>◇</span></div>
+    </div>
 
-    <div class="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3 reveal">
-      <div>
-        <span class="eyebrow">Selección</span>
-        <h2 style="color:white;">Nuestro Catálogo<em> de Joyas</em></h2>
-        <div class="gold-rule"></div>
+    <div class="row g-3">
+      {% for item in shapes_grid %}
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <a href="{% url 'tienda' %}?shape={{ item.code }}" class="shape-card">
+          <div class="shape-card-icon">{{ item.icon }}</div>
+          <div class="shape-card-name">{{ item.name }}</div>
+          <div class="shape-card-desc">{{ item.code }}</div>
+        </a>
       </div>
-      <a href="{% url 'tienda' %}" class="btn btn-gold-outline">
-        <span>Ver todas</span>
-        <i class="fas fa-arrow-right"></i>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     FEATURED LIVE DIAMONDS
+════════════════════════════════════════════════════ -->
+<section class="featured-section py-6" id="destacados">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
+      <div>
+        <span class="section-eyebrow">Selección Exclusiva</span>
+        <h2 class="section-title">Diamantes <em class="section-accent">Destacados</em></h2>
+      </div>
+      <a href="{% url 'tienda' %}" class="btn-secondary-luxury btn-sm">
+        Ver todos los diamantes
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
     </div>
 
-    <div class="product-grid">
-      {% if productos %}
-        {% for producto in productos %}
-          <div class="product-card reveal">
-            <div class="product-card-image">
-              <a href="{% url 'productos' producto.id %}">
-                <div class="image-container">
-                  {% if producto.portada %}
-                    <img class="main-image" src="{{ producto.portada.url }}" alt="{{ producto.nombre }}" loading="lazy" decoding="async">
-                  {% elif producto.imagen %}
-                    <img class="main-image" src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" loading="lazy" decoding="async">
-                  {% else %}
-                    <img class="main-image" src="{% static 'images/default_event.jpg' %}" alt="{{ producto.nombre }}" loading="lazy" decoding="async">
-                  {% endif %}
-                  {% with producto.imagenes.all|slice:"1:2" as second_image %}
-                    {% if second_image %}
-                      <img class="hover-image" src="{{ second_image.0.imagen.url }}" alt="{{ producto.nombre }}" loading="lazy" decoding="async">
-                    {% endif %}
-                  {% endwith %}
-                </div>
+    <div class="row g-4">
+      {% for dm in featured_diamonds %}
+      <div class="col-6 col-md-4 col-lg-4">
+        <div class="diamond-card">
+          <div class="diamond-card-media">
+            {% if dm.imagen_display_url %}
+              <img src="{{ dm.imagen_display_url }}" alt="{{ dm.carats }} ct {{ dm.shape }}" class="diamond-img">
+            {% else %}
+              <div class="diamond-img-placeholder">
+                <svg width="48" height="48" viewBox="0 0 36 36" fill="none">
+                  <polygon points="18,3 33,12 33,24 18,33 3,24 3,12" fill="none" stroke="#4A5568" stroke-width="1.2"/>
+                  <polygon points="18,3 26,12 18,21 10,12" fill="none" stroke="#4A5568" stroke-width="0.8" opacity="0.6"/>
+                </svg>
+                <span class="diamond-img-placeholder-text">{{ dm.shape }}</span>
+              </div>
+            {% endif %}
+            <span class="diamond-card-lab {% if dm.lab == 'GIA' %}lab-gia{% else %}lab-igi{% endif %}">{{ dm.lab }}</span>
+          </div>
+
+          <div class="diamond-card-body">
+            <h5 class="diamond-card-title">{{ dm.carats }} ct {{ dm.shape }}</h5>
+            <div class="diamond-card-specs">
+              <span class="diamond-spec-badge">Color {{ dm.color }}</span>
+              <span class="diamond-spec-badge">{{ dm.clarity }}</span>
+              {% if dm.cut and dm.cut != '-' %}<span class="diamond-spec-badge">{{ dm.cut }}</span>{% endif %}
+            </div>
+            <div class="diamond-card-footer">
+              <strong class="diamond-price">${{ dm.precio|floatformat:0 }}</strong>
+              <a href="{% url 'productos' %}?diamond_id={{ dm.id }}" class="btn-diamond-view">
+                Ver ficha
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </a>
-              <div class="product-card-status">
-                {% if producto.agotado %}
-                  <span class="badge-sold-out">Agotado</span>
-                {% else %}
-                  <span class="badge-available">Disponible</span>
-                {% endif %}
-              </div>
-            </div>
-            <div class="product-card-body">
-              {% with producto.categorias.all|first as cat %}
-                {% if cat %}<div class="product-card-cat">{{ cat.nombre }}</div>{% endif %}
-              {% endwith %}
-              <div class="product-card-name">
-                <a href="{% url 'productos' producto.id %}">{{ producto.nombre }}</a>
-              </div>
-              <div class="product-card-price">${{ producto.precio }}</div>
             </div>
           </div>
-        {% endfor %}
-      {% else %}
-        <div style="text-align:center; color:#fff; width:100%; grid-column:1/-1;">
-          <p style="font-size:1.2rem; margin-bottom:1rem;">No hay productos destacados disponibles en este momento.</p>
-          <a href="{% url 'tienda' %}" class="btn btn-gold-outline">Ver catálogo completo</a>
         </div>
-      {% endif %}
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <div style="color:#5A6375; font-size:0.95rem;">
+          <svg width="48" height="48" viewBox="0 0 36 36" fill="none" class="mb-3 opacity-25" style="display:block;margin:0 auto 12px;">
+            <polygon points="18,3 33,12 33,24 18,33 3,24 3,12" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          Cargando diamantes del inventario Nivoda B2B…
+        </div>
+        <a href="{% url 'tienda' %}" class="btn-primary-luxury mt-4 d-inline-flex">Explorar Catálogo</a>
+      </div>
+      {% endfor %}
     </div>
-
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════
-     ABOUT — SPLIT SCREEN
+     CERTIFICATIONS / WHY US
 ════════════════════════════════════════════════════ -->
-<section class="about-section" id="nosotros">
-
-  <div class="about-visual">
-    <video id="heroVideo" src="{% static 'video/video.mp4' %}" autoplay loop muted playsinline preload="none"></video>
-    <div class="about-visual-overlay"></div>
-    <div class="about-badge">
-      <strong>18k</strong>
-      <span>Oro Garantizado</span>
-    </div>
-  </div>
-
-  <div class="about-text">
-    <span class="eyebrow">Nuestra Historia</span>
-    <h2>Tradición y<br><em>Modernidad</em></h2>
-    <div class="gold-rule"></div>
-    <p>
-      En el corazón de Venezuela nace Universal Gold, una joyería de lujo que redefine la experiencia de adquirir y disfrutar el oro. Más que una tienda, somos un universo donde la elegancia se fusiona con la frescura de lo contemporáneo; aquí, cada pieza narra una historia de sofisticación, arte y absoluta exclusividad.
-    </p>
-    <p>
-      Universal Gold trasciende el concepto tradicional de joyería: es un espacio vivo y dinámico donde el diseño, la moda y la cultura convergen. Nuestro local se transforma en una galería sensorial que alberga eventos privados, lanzamientos de colecciones y experiencias inmersivas, todo diseñado para un público exigente que busca lo extraordinario.
-    </p>
-
-    <div class="about-mv-grid">
-      <div class="about-mv-card">
-        <div class="about-mv-icon"><i class="fas fa-bullseye"></i></div>
-        <h5>Misión</h5>
-        <p>Crear experiencias únicas a través de joyas de oro que combinan diseño vanguardista, artesanía impecable y un ambiente exclusivo. No solo ofrecemos un producto, sino un estilo de vida sofisticado y memorable.</p>
-      </div>
-      <div class="about-mv-card">
-        <div class="about-mv-icon"><i class="fas fa-eye"></i></div>
-        <h5>Visión</h5>
-        <p>Ser la joyería de referencia en Venezuela y Latinoamérica por nuestro enfoque innovador y experiencial. Nos posicionamos como un ícono de lujo moderno que transforma cada visita en una celebración del buen gusto y la autenticidad.</p>
-      </div>
-    </div>
-  </div>
-
-</section>
-
-<!-- ═══════════════════════════════════════════════════
-     SERVICES
-════════════════════════════════════════════════════ -->
-<section class="pillars-section" id="servicios">
+<section class="cert-section py-6" id="certificaciones">
   <div class="container">
-    <div class="text-center mb-5 reveal">
-      <span class="eyebrow">Lo que hacemos</span>
-      <h2>Nuestros <em>Servicios</em></h2>
-      <div class="gold-rule centered"></div>
-    </div>
-    <div class="pillar-grid reveal">
-      <div class="pillar pillar-wa-reparacion" style="cursor:pointer;">
-        <span class="pillar-icon"><i class="fas fa-tools"></i></span>
-        <h5>Reparación de Joyas</h5>
-        <p>Restauramos tus piezas favoritas con la misma precisión artesanal con que fueron creadas. Soldaduras, ajustes y reparaciones completas.</p>
-      </div>
-      <div class="pillar pillar-wa-avaluo" style="cursor:pointer;">
-        <span class="pillar-icon"><i class="fas fa-balance-scale"></i></span>
-        <h5>Fundición y Análisis de Metales</h5>
-        <p>Transformamos oro y plata en lingotes profesionales, garantizando la pureza exacta de cada gramo mediante tecnología de espectrometría de vanguardia.</p>
-      </div>
-      <div class="pillar pillar-wa-compra" style="cursor:pointer;">
-        <span class="pillar-icon"><i class="fas fa-coins"></i></span>
-        <h5>Compra de Oro</h5>
-        <p>Compramos oro en cualquier presentación: joyas, monedas o lingotes. Ofrecemos el mejor precio del mercado de forma inmediata y segura.</p>
-      </div>
-      <div class="pillar pillar-wa-personalizada" style="cursor:pointer;">
-        <span class="pillar-icon"><i class="fas fa-pencil-ruler"></i></span>
-        <h5>Personalización de Joyas</h5>
-        <p>Diseñamos y fabricamos piezas únicas según tu visión. Desde el boceto hasta la joya terminada, creamos la prenda de tus sueños en oro 18k.</p>
-      </div>
-    </div>
-    <script>
-      window.WHATSAPP_EMPRESA = "{{ whatsapp_number_clean|default:'' }}";
-    </script>
-    <script src="{% static 'js/servicios-wa.js' %}"></script>
-  </div>
-</section>
-
-<!-- Script para WhatsApp directo por servicio -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const servicios = [
-      {
-        selector: '.pillar-wa-reparacion',
-        mensaje: '¡Hola! Me encantaría recibir información y una cotización para el servicio de restauración y reparación especializada de mis joyas. ✨',
-      },
-      {
-        selector: '.pillar-wa-avaluo',
-        mensaje: '¡Hola! Estoy interesado en el servicio de fundición y análisis de metales. ¿Podrían darme información y una cotización para transformar oro o plata en lingotes y analizar su pureza? 🧪',
-      },
-      {
-        selector: '.pillar-wa-compra',
-        mensaje: '¡Hola! Me gustaría consultar la tasa del día y el proceso para la venta de mi oro. Quedo atento a su información. 📈',
-      },
-      {
-        selector: '.pillar-wa-personalizada',
-        mensaje: '¡Hola! Me gustaría cotizar el diseño de una pieza personalizada y exclusiva. ¿Podrían asesorarme?',
-      },
-    ];
-
-    // El número se inyecta desde Django en window.WHATSAPP_EMPRESA
-    const telefono = window.WHATSAPP_EMPRESA;
-
-    servicios.forEach(servicio => {
-      document.querySelectorAll(servicio.selector).forEach(el => {
-        el.addEventListener('click', function(e) {
-          e.preventDefault();
-          if (!telefono) return;
-          const url = `https://wa.me/${telefono}?text=${encodeURIComponent(servicio.mensaje)}`;
-          window.open(url, '_blank');
-        });
-      });
-    });
-  });
-</script>
-
-<!-- ═══════════════════════════════════════════════════
-     JOYERÍA PERSONALIZADA
-════════════════════════════════════════════════════ -->
-<section class="custom-section" id="personalizada">
-  <div class="container">
-    <div class="custom-section-inner">
-
-      <div class="custom-section-text reveal">
-        <span class="eyebrow">Diseño Exclusivo</span>
-        <h2>Joyería <em>Personalizada</em></h2>
-        <div class="gold-rule"></div>
-        <p>Creamos piezas únicas que cuentan tu historia. Cada diseño nace de un momento especial — un aniversario, una promesa, un recuerdo que merece perdurar en oro.</p>
-        <div class="custom-features">
-          <div class="custom-feature">
-            <div class="custom-feature-icon"><i class="fas fa-drafting-compass"></i></div>
-            <div>
-              <strong>Diseño a medida</strong>
-              <span>Trabajamos desde tu idea hasta el boceto final</span>
-            </div>
-          </div>
-          <div class="custom-feature">
-            <div class="custom-feature-icon"><i class="fas fa-certificate"></i></div>
-            <div>
-              <strong>Oro 18k garantizado</strong>
-              <span>Cada pieza certificada con pureza comprobada</span>
-            </div>
-          </div>
-          <div class="custom-feature">
-            <div class="custom-feature-icon"><i class="fas fa-clock"></i></div>
-            <div>
-              <strong>Entrega estimada 7–21 días</strong>
-              <span>Proceso artesanal cuidado paso a paso</span>
-            </div>
-          </div>
-        </div>
-        {% if whatsapp_url %}
-        <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:2rem;">
-          <i class="fab fa-whatsapp"></i>
-          <span>Consultar por WhatsApp</span>
-        </a>
-        {% endif %}
-      </div>
-
-      <div class="custom-section-visual reveal">
-        <div class="custom-carousel-container">
-          <div class="custom-carousel">
-            <div class="carousel-slide active">
-              <img src="https://m.media-amazon.com/images/I/51K10qzJmUL._AC_SY1000_.jpg" alt="Joya personalizada 1" loading="lazy">
-            </div>
-            <div class="carousel-slide">
-              <img src="https://i0.wp.com/piedrarosa-cr.com/wp-content/uploads/2026/01/ChatGPT-Image-Jan-28-2026-10_01_18-PM.png?resize=1024%2C683&ssl=1" alt="Joya personalizada 2" loading="lazy">
-            </div>
-            <div class="carousel-slide">
-              <img src="https://www.sesnines.es/img/cms/diseno-joyas-personalizadas-palma-mallorca.jpg" alt="Joya personalizada 3" loading="lazy">
-            </div>
-            <div class="carousel-slide">
-              <img src="https://joyassiliva.es/wp-content/uploads/2019/10/joyassiliva-pulsera-ledicia-02-ok.jpg" alt="Joya personalizada 4" loading="lazy">
-            </div>
-          </div>
-          <button class="carousel-btn carousel-prev" aria-label="Anterior">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          <button class="carousel-btn carousel-next" aria-label="Siguiente">
-            <i class="fas fa-chevron-right"></i>
-          </button>
-          <div class="carousel-dots">
-            <button class="carousel-dot active" data-index="0" aria-label="Slide 1"></button>
-            <button class="carousel-dot" data-index="1" aria-label="Slide 2"></button>
-            <button class="carousel-dot" data-index="2" aria-label="Slide 3"></button>
-            <button class="carousel-dot" data-index="3" aria-label="Slide 4"></button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════
-     VENTAS AL MAYOR
-════════════════════════════════════════════════════ -->
-<section class="wholesale-section reveal">
-  <div class="wholesale-inner">
-
-    <div class="wholesale-media">
-      <video src="{% static 'video/mayorista.mp4' %}" autoplay loop muted playsinline></video>
-      <div class="wholesale-media-overlay"></div>
+    <div class="section-header text-center mb-5">
+      <span class="section-eyebrow">Garantía &amp; Confianza</span>
+      <h2 class="section-title">¿Por qué elegir <em class="section-accent">Universal Diamond</em>?</h2>
+      <div class="section-divider"><span>◇</span></div>
     </div>
 
-    <div class="wholesale-content">
-      <span class="eyebrow wholesale-eyebrow">Programa Exclusivo</span>
-      <h2 class="wholesale-title">Ventas al <em>Mayor</em></h2>
-      <div class="gold-rule"></div>
-      <p class="wholesale-desc">
-        Ofrecemos condiciones especiales para joyerías, revendedores y distribuidores. Accede a nuestra colección completa en oro con precios mayoristas, volúmenes flexibles y atención personalizada para tu negocio.
-      </p>
-      <div class="wholesale-cta">
-        {% if whatsapp_url %}
-        <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" class="btn-wholesale-wa">
-          <i class="fab fa-whatsapp"></i>
-          <span>Consultar Condiciones Mayoristas</span>
-        </a>
-        {% else %}
-        <a href="https://wa.me/584241232838?text=Hola%2C%20me%20interesa%20información%20sobre%20ventas%20al%20mayor." target="_blank" rel="noopener" class="btn-wholesale-wa">
-          <i class="fab fa-whatsapp"></i>
-          <span>Consultar Condiciones Mayoristas</span>
-        </a>
-        {% endif %}
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="cert-card">
+          <div class="cert-card-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="8" r="6"/><path d="M8 8l2 2 4-4"/>
+              <path d="M2 20c0-4 2-8 10-8s10 4 10 8"/>
+            </svg>
+          </div>
+          <h5 class="cert-card-title">Certificación GIA &amp; IGI Oficial</h5>
+          <p class="cert-card-desc">Todos nuestros diamantes cuentan con certificación de laboratorios independientes de prestigio mundial con verificación por número de reporte.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="cert-card cert-card--accent">
+          <div class="cert-card-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <h5 class="cert-card-title">Conexión B2B Global Live</h5>
+          <p class="cert-card-desc">Acceso directo a la red internacional Nivoda para conseguir la mejor calidad al precio de mercado B2B más competitivo del mundo.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="cert-card">
+          <div class="cert-card-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <h5 class="cert-card-title">Envío Asegurado &amp; Asesoría</h5>
+          <p class="cert-card-desc">Logística protegida de punto a punto y asesoramiento personalizado para la compra y apartado de tus diamantes certificados.</p>
+        </div>
       </div>
     </div>
-
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════
-     VIP
-════════════════════════════════════════════════════ -->
-<section class="vip-index-section" id="vip">
-  <div class="vip-index-bg"></div>
-  <div class="container" style="position:relative;z-index:1;">
-    <div class="vip-index-inner">
-
-      <div class="vip-index-text reveal">
-        <div class="vip-crown-sm"><i class="fas fa-crown"></i></div>
-        <span class="eyebrow" style="color:var(--gold-light);">Membresía Exclusiva</span>
-        <h2 style="color:var(--white);">Club <em>VIP</em><br>Universal Gold</h2>
-        <div class="gold-rule"></div>
-        <p style="font-size:0.87rem;color:rgba(250,247,240,0.55);line-height:1.9;max-width:420px;margin-bottom:2rem;">
-          Únete a nuestra comunidad de clientes privilegiados. Beneficios exclusivos, atención personalizada y acceso anticipado a nuevas colecciones.
-        </p>
-        <div class="vip-index-actions">
-          {% if whatsapp_url %}
-          <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" class="btn btn-primary">
-            <i class="fab fa-whatsapp"></i>
-            <span>Solicitar membresía VIP</span>
-          </a>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="vip-index-benefits reveal">
-        <div class="vip-index-benefit">
-          <div class="vip-benefit-full-icon"><i class="fas fa-tag" style="color:var(--gold-light);"></i></div>
-          <div class="vip-benefit-full-body">
-            <h4 style="color:var(--white);">Precios Preferenciales</h4>
-            <p style="color:rgba(250,247,240,0.7);">Descuentos exclusivos en toda la colección. Precios especiales solo disponibles para miembros VIP.</p>
-          </div>
-        </div>
-        <div class="vip-index-benefit">
-          <div class="vip-benefit-full-icon"><i class="fas fa-bell" style="color:var(--gold-light);"></i></div>
-          <div class="vip-benefit-full-body">
-            <h4 style="color:var(--white);">Acceso Anticipado</h4>
-            <p style="color:rgba(250,247,240,0.7);">Sé el primero en ver nuevas colecciones antes de su lanzamiento al público general.</p>
-          </div>
-        </div>
-        <div class="vip-index-benefit">
-          <div class="vip-benefit-full-icon"><i class="fas fa-user-tie" style="color:var(--gold-light);"></i></div>
-          <div class="vip-benefit-full-body">
-            <h4 style="color:var(--white);">Asesor Personal</h4>
-            <p style="color:rgba(250,247,240,0.7);">Atención personalizada y dedicada con tu propio asesor de joyería por WhatsApp.</p>
-          </div>
-        </div>
-        <div class="vip-index-benefit">
-          <div class="vip-benefit-full-icon"><i class="fas fa-gift" style="color:var(--gold-light);"></i></div>
-          <div class="vip-benefit-full-body">
-            <h4 style="color:var(--white);">Beneficios Especiales</h4>
-            <p style="color:rgba(250,247,240,0.7);">Eventos privados, sorpresas exclusivas y ventajas únicas reservadas para miembros.</p>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════
-     CONTACT & LOCATION
-════════════════════════════════════════════════════ -->
-<section class="contact-section" id="contacto">
-
-  <div class="container">
-    <div class="contact-grid reveal">
-
-      <div class="contact-info-panel">
-        <span class="eyebrow">Información de Contacto</span>
-        <h2>Hablemos de<br><em>tu próxima joya</em></h2>
-
-        <div class="contact-info-list">
-
-          {% if whatsapp_url %}
-          <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" class="contact-info-item">
-            <div class="contact-info-icon"><i class="fab fa-whatsapp"></i></div>
-            <div class="contact-info-text">
-              <strong>WhatsApp</strong>
-              <span>{{ whatsapp_number|default:'+58 (424) 123.2838' }}<br>Atención inmediata · Lun–Sáb</span>
-            </div>
-          </a>
-          {% endif %}
-
-          <a href="mailto:info@universalgold.net" class="contact-info-item">
-            <div class="contact-info-icon"><i class="fas fa-envelope"></i></div>
-            <div class="contact-info-text">
-              <strong>Correo Electrónico</strong>
-              <span>info@universalgold.net<br>Respondemos en menos de 24 h</span>
-            </div>
-          </a>
-
-          <div class="contact-info-item">
-            <div class="contact-info-icon"><i class="fas fa-map-marker-alt"></i></div>
-            <div class="contact-info-text">
-              <strong>Tienda Física</strong>
-              <span>CC Tolón Fashion Mall, Piso 5, Local 5–05<br>Av. Principal Las Mercedes, Caracas</span>
-            </div>
-          </div>
-
-          <div class="contact-info-item">
-            <div class="contact-info-icon"><i class="fas fa-clock"></i></div>
-            <div class="contact-info-text">
-              <strong>Horario de Atención</strong>
-              <span>Lunes – Sábado: 10:00 am – 8:00 pm<br>Domingos y días feriados: 11:00 am – 7:00 pm</span>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="contact-social">
-          <a href="https://instagram.com/universalgold.ve" target="_blank" rel="noopener" title="Instagram">
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a href="https://www.tiktok.com/@universalgold" target="_blank" rel="noopener" title="TikTok">
-            <i class="fab fa-tiktok"></i>
-          </a>
-          {% if whatsapp_url %}
-          <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" title="WhatsApp">
-            <i class="fab fa-whatsapp"></i>
-          </a>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="contact-map-panel">
-
-        <div class="contact-map-embed">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3923.5!2d-66.872!3d10.488!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zQ0MgVG9sw7NuIEZhc2hpb24gTWFsbA!5e0!3m2!1ses!2sve!4v1"
-            allowfullscreen=""
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-            title="Ubicación Universal Gold — CC Tolón Fashion Mall"
-          ></iframe>
-        </div>
-
-        <div class="contact-form-area">
-          <h4>Envíanos un <em>mensaje</em></h4>
-          <p class="form-subtitle">Cuéntanos qué buscas y te asesoramos sin compromiso.</p>
-
-          <form method="post" action="{% url 'index' %}" novalidate>
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="contacto">
-
-            <div class="contact-form-row">
-              <div class="contact-field-group">
-                <label for="cf_nombre">Nombre</label>
-                <input type="text" id="cf_nombre" name="cf_nombre" placeholder="Tu nombre" required>
-              </div>
-              <div class="contact-field-group">
-                <label for="cf_telefono">Teléfono (opcional)</label>
-                <input type="tel" id="cf_telefono" name="cf_telefono" placeholder="+58 424 000 0000">
-              </div>
-            </div>
-
-            <div class="contact-field-group">
-              <label for="cf_correo">Correo Electrónico</label>
-              <input type="email" id="cf_correo" name="cf_correo" placeholder="tucorreo@email.com" required>
-            </div>
-
-            <div class="contact-field-group">
-              <label for="cf_mensaje">Mensaje</label>
-              <textarea id="cf_mensaje" name="cf_mensaje" placeholder="¿Qué joya estás buscando? ¿Tienes alguna pregunta?" required></textarea>
-            </div>
-
-            <div class="contact-submit-row">
-              <button type="submit" class="btn btn-primary">
-                <span>Enviar Mensaje</span>
-                <i class="fas fa-arrow-right"></i>
-              </button>
-              <p class="contact-whatsapp-alt">
-                ¿Prefieres escribir directo?
-                {% if whatsapp_url %}
-                <a href="{{ whatsapp_url }}" target="_blank" rel="noopener">WhatsApp →</a>
-                {% endif %}
-              </p>
-            </div>
-          </form>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <div class="contact-location-strip">
-    <div class="container">
-      <div class="contact-location-inner">
-
-        <div class="contact-location-address">
-          <div class="contact-location-pin">
-            <i class="fas fa-map-marker-alt"></i>
-          </div>
-          <div class="contact-location-text">
-            <strong>CC Tolón Fashion Mall · Piso 5, Local 5–05</strong>
-            <span>Av. Principal Las Mercedes, Caracas, Venezuela</span>
-          </div>
-        </div>
-
-        <div class="contact-hours">
-          <div class="contact-hours-item">
-            <strong>Lun – Sáb</strong>
-            <span>10:00 am – 8:00 pm</span>
-          </div>
-          <div class="contact-hours-item">
-            <strong>Domingo</strong>
-            <span>11:00 am – 7:00 pm</span>
-          </div>
-          <div class="contact-hours-item">
-            <strong>WhatsApp</strong>
-            <span>Siempre disponible</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-</section>
-
-<!-- ═══════════════════════════════════════════════════
-     CTA
-════════════════════════════════════════════════════ -->
-<section class="cta-section">
-  <div class="container" style="position:relative;z-index:1;">
-    <span class="eyebrow" style="color:var(--gold-light);">Próximo Paso</span>
-    <h2 class="mb-3">Encuentra tu <em>pieza perfecta</em></h2>
-    <div class="gold-rule centered mb-4"></div>
-    <p>Cada diseño en nuestra colección es único. Descubre la joya que te representa.</p>
-    <a href="{% url 'tienda' %}" class="btn btn-primary">
-      <span>Explorar Catálogo</span>
-      <i class="fas fa-arrow-right"></i>
-    </a>
   </div>
 </section>
 

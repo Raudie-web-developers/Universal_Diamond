@@ -24,9 +24,11 @@ def crear_cliente(nombre, correo, telefono=''):
     )
     return cliente
 
+import json
+
 def crear_orden_desde_carrito(cliente, items, mensaje='', codigo_afiliado='', descuento_afiliado=0):
     """
-    items: iterable de dicts {'product_id': int, 'cantidad': int}
+    items: iterable de dicts {'product_id': int, 'cantidad': int, 'precio': str/float, 'diamond_data': dict}
     Crea la orden y items asociados. Devuelve la instancia Orden.
     """
     if not items:
@@ -45,19 +47,60 @@ def crear_orden_desde_carrito(cliente, items, mensaje='', codigo_afiliado='', de
     )
     total = Decimal('0')
     for it in items:
-        pid = int(it.get('product_id'))
+        pid = it.get('product_id')
         cantidad = int(it.get('cantidad') or 1)
-        try:
-            prod = Product.objects.get(id=pid)
-        except Product.DoesNotExist:
+        diamond_data = it.get('diamond_data') or {}
+
+        prod = None
+        if pid and str(pid).isdigit() and int(pid) > 0:
+            prod = Product.objects.filter(id=int(pid)).first()
+
+        if not prod and diamond_data:
+            # Dynamic product creation for Nivoda Diamond
+            n_id = diamond_data.get('id') or diamond_data.get('diamond_id') or 'NIVODA-UNKNOWN'
+            carats = diamond_data.get('carats', 0.0)
+            shape = diamond_data.get('shape', 'DIAMOND')
+            color = diamond_data.get('color', '')
+            clarity = diamond_data.get('clarity', '')
+            lab = diamond_data.get('lab', '')
+            title = f"Diamante {carats} ct {shape} ({color}/{clarity} - {lab})"
+
+            try:
+                price_val = Decimal(str(it.get('precio', diamond_data.get('price', 0))))
+            except Exception:
+                price_val = Decimal('0.00')
+
+            prod, _ = Product.objects.get_or_create(
+                nivoda_id=n_id,
+                defaults={
+                    'nombre': title,
+                    'descripcion': f"Diamante certificado por {lab}. Certificado #: {diamond_data.get('cert_number', 'N/A')}",
+                    'precio': price_val,
+                    'shape': shape,
+                    'carats': Decimal(str(carats)) if carats else Decimal('0'),
+                    'color': color,
+                    'clarity': clarity,
+                    'cut': diamond_data.get('cut', ''),
+                    'lab': lab,
+                    'cert_number': diamond_data.get('cert_number', ''),
+                    'cert_pdf': diamond_data.get('pdf_url', ''),
+                    'video_url': diamond_data.get('video', ''),
+                    'is_diamond': True,
+                }
+            )
+
+        if not prod:
             continue
-        # Usar el precio enviado si está presente (multiprecio), si no, el del producto
+
         precio = Decimal(str(it.get('precio', prod.precio)))
+        detalles_json = json.dumps(diamond_data) if diamond_data else None
+
         OrdenItem.objects.create(
             orden=orden,
             producto=prod,
             cantidad=cantidad,
-            precio_unitario=precio
+            precio_unitario=precio,
+            detalles_diamante=detalles_json
         )
         total += precio * cantidad
 

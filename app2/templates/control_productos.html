@@ -1,53 +1,159 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Gestión de Productos{% endblock %}
+{% block title %}Inventario de Diamantes Certificados{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid py-3">
 
-  <!-- Page Header -->
-  <div class="page-header my-4">
-    <h1 class="page-title"><i class="fas fa-boxes me-2 text-primary"></i>Gestión de Productos</h1>
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h1 class="h3 mb-0 text-dark font-display"><i class="fas fa-gem text-warning me-2"></i>Inventario de Diamantes Certificados</h1>
+      <p class="text-muted small mb-0">Gestión de diamantes sincronizados desde el API B2B de Nivoda</p>
+    </div>
+    <a href="{% url 'configuracion_whatsapp' %}" class="btn btn-outline-dark btn-sm rounded-pill">
+      <i class="fas fa-cog me-1"></i>Configurar Credenciales Nivoda API
+    </a>
   </div>
 
-  <!-- BUSCADOR / FILTROS -->
-  <div class="card mb-4 shadow-sm">
+  <!-- KPI CARDS -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex align-items-center">
+          <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary me-3">
+            <i class="fas fa-gem fs-3"></i>
+          </div>
+          <div>
+            <span class="text-muted small text-uppercase font-weight-bold d-block">Total Diamantes</span>
+            <h3 class="mb-0 font-display fw-bold text-dark">{{ total_diamantes|default:0 }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex align-items-center">
+          <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning me-3">
+            <i class="fas fa-cube fs-3"></i>
+          </div>
+          <div>
+            <span class="text-muted small text-uppercase font-weight-bold d-block">Con Vista / Video 360°</span>
+            <h3 class="mb-0 font-display fw-bold text-dark">{{ diamantes_con_360|default:0 }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex align-items-center">
+          <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success me-3">
+            <i class="fas fa-dollar-sign fs-3"></i>
+          </div>
+          <div>
+            <span class="text-muted small text-uppercase font-weight-bold d-block">Valor Total Inventario</span>
+            <h3 class="mb-0 font-display fw-bold text-dark">${{ valor_total_inventario|floatformat:2 }} USD</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD SINCRONIZADOR NIVODA API -->
+  <div class="card mb-4 border-warning shadow-sm rounded-3 overflow-hidden">
+    <div class="card-header bg-dark text-white d-flex align-items-center justify-content-between py-3">
+      <h5 class="mb-0 font-display fs-6"><i class="fas fa-cloud-download-alt text-warning me-2"></i>Sincronizar Inventario desde Nivoda B2B API</h5>
+      <span class="badge bg-warning text-dark">Descarga Directa a BD</span>
+    </div>
     <div class="card-body">
-      <form method="get" class="row g-3 align-items-center">
-        <div class="col-sm-3 col-md-3">
-          <div class="input-group">
-             <span class="input-group-text bg-light"><i class="fas fa-search text-muted"></i></span>
-             <input type="text" name="q" class="form-control"
-                 placeholder="Buscar por nombre..."
-                 value="{{ q|default:'' }}">
+      <form method="post" action="{% url 'sincronizar_diamantes' %}" class="row g-3 align-items-end">
+        {% csrf_token %}
+        <div class="col-md-3">
+          <label class="form-label font-weight-bold small text-dark">Límite a Descargar</label>
+          <select name="limit" class="form-select form-select-sm">
+            <option value="50">50 Diamantes</option>
+            <option value="100" selected>100 Diamantes</option>
+            <option value="250">250 Diamantes</option>
+            <option value="500">500 Diamantes</option>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label font-weight-bold small text-dark">Filtrar por Formas (Opcional)</label>
+          <div class="d-flex flex-wrap gap-2">
+            <div class="form-check form-check-inline small">
+              <input class="form-check-input" type="checkbox" name="shapes" value="ROUND" id="shapeRound" checked>
+              <label class="form-check-label" for="shapeRound">Round</label>
+            </div>
+            <div class="form-check form-check-inline small">
+              <input class="form-check-input" type="checkbox" name="shapes" value="OVAL" id="shapeOval" checked>
+              <label class="form-check-label" for="shapeOval">Oval</label>
+            </div>
+            <div class="form-check form-check-inline small">
+              <input class="form-check-input" type="checkbox" name="shapes" value="CUSHION" id="shapeCushion" checked>
+              <label class="form-check-label" for="shapeCushion">Cushion</label>
+            </div>
+            <div class="form-check form-check-inline small">
+              <input class="form-check-input" type="checkbox" name="shapes" value="PRINCESS" id="shapePrincess" checked>
+              <label class="form-check-label" for="shapePrincess">Princess</label>
+            </div>
+            <div class="form-check form-check-inline small">
+              <input class="form-check-input" type="checkbox" name="shapes" value="EMERALD" id="shapeEmerald" checked>
+              <label class="form-check-label" for="shapeEmerald">Emerald</label>
+            </div>
           </div>
         </div>
 
-        <!-- 1. FILTRO CATEGORÍAS (RECURSIVO INFINITO) -->
-        <div class="col-sm-3 col-md-3">
-          <select name="categoria" class="form-select">
-            <option value="">Todas las categorías</option>
-            {% for cat in categorias %}
-              {% if not cat.padre %}
-                  {# Usamos el include recursivo en modo 'single' #}
-                  {% include "includes/opcion_select_recursiva.html" with cat=cat level=0 selection_mode='single' current_selected=categoria_id %}
-              {% endif %}
-            {% endfor %}
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-warning w-100 py-2 font-weight-bold text-dark">
+            <i class="fas fa-sync-alt me-2"></i>Sincronizar Diamantes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- BUSCADOR Y FILTROS TABLA -->
+  <div class="card mb-4 shadow-sm border-0 rounded-3">
+    <div class="card-body">
+      <form method="get" class="row g-3 align-items-center">
+        <div class="col-md-4">
+          <div class="input-group input-group-sm">
+             <span class="input-group-text bg-light"><i class="fas fa-search text-muted"></i></span>
+             <input type="text" name="q" class="form-control" placeholder="Buscar por certificado, ID Nivoda o nombre..." value="{{ q|default:'' }}">
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <select name="shape" class="form-select form-select-sm">
+            <option value="">Todas las Formas</option>
+            <option value="ROUND" {% if shape_filter == 'ROUND' %}selected{% endif %}>Round</option>
+            <option value="OVAL" {% if shape_filter == 'OVAL' %}selected{% endif %}>Oval</option>
+            <option value="CUSHION" {% if shape_filter == 'CUSHION' %}selected{% endif %}>Cushion</option>
+            <option value="PRINCESS" {% if shape_filter == 'PRINCESS' %}selected{% endif %}>Princess</option>
+            <option value="EMERALD" {% if shape_filter == 'EMERALD' %}selected{% endif %}>Emerald</option>
+            <option value="RADIANT" {% if shape_filter == 'RADIANT' %}selected{% endif %}>Radiant</option>
+            <option value="PEAR" {% if shape_filter == 'PEAR' %}selected{% endif %}>Pear</option>
+            <option value="MARQUISE" {% if shape_filter == 'MARQUISE' %}selected{% endif %}>Marquise</option>
           </select>
         </div>
 
-        <div class="col-sm-3 col-md-3">
-          <select name="agotado" class="form-select">
-            <option value="">Estado: Todos</option>
-            <option value="1" {% if agotado_filter == '1' %}selected{% endif %}>Agotado</option>
-            <option value="0" {% if agotado_filter == '0' %}selected{% endif %}>Disponible</option>
+        <div class="col-md-3">
+          <select name="lab" class="form-select form-select-sm">
+            <option value="">Todos los Laboratorios</option>
+            <option value="GIA" {% if lab_filter == 'GIA' %}selected{% endif %}>GIA</option>
+            <option value="IGI" {% if lab_filter == 'IGI' %}selected{% endif %}>IGI</option>
+            <option value="HRD" {% if lab_filter == 'HRD' %}selected{% endif %}>HRD</option>
+            <option value="EGL" {% if lab_filter == 'EGL' %}selected{% endif %}>EGL</option>
           </select>
         </div>
 
-        <div class="col-sm-3 col-md-3 d-flex gap-2">
-          <button type="submit" class="btn btn-primary w-100">Buscar</button>
-          <a href="{% url 'control_productos' %}" class="btn btn-outline-secondary" title="Limpiar filtros">
+        <div class="col-md-2 d-flex gap-2">
+          <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
+          <a href="{% url 'control_productos' %}" class="btn btn-outline-secondary btn-sm" title="Limpiar">
             <i class="fas fa-eraser"></i>
           </a>
         </div>
@@ -55,448 +161,128 @@
     </div>
   </div>
 
-  <!-- TABLA DE PRODUCTOS -->
-  <div class="card shadow-sm">
+  <!-- TABLA DE DIAMANTES -->
+  <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
     <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
+          <thead class="table-dark">
             <tr>
-              <th class="ps-4">Imagen</th>
-              <th>Nombre</th>
-              <th>Categorías</th>
-              {% if SHOW_PRICES %}
-              <th>Precio</th>
-              {% endif %}
-              <th>Estado</th>
-              <th class="text-end pe-4" style="width: 200px;">Acciones</th>
+              <th class="ps-4">Vista / Media</th>
+              <th>Diamante / Forma</th>
+              <th>Especificaciones 4Cs</th>
+              <th>Certificación</th>
+              <th>Precio USD</th>
+              <th class="text-end pe-4">Acciones</th>
             </tr>
           </thead>
-            <tbody>
-              {% for producto in productos %}
-              <tr class="align-middle"> <!-- Alineación vertical centrada para toda la fila -->
-                
-                <!-- IMAGEN -->
-                <td class="ps-4" style="width:100px;">
-                  {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}"
-                        alt="{{ producto.nombre }}"
-                        class="shadow-sm border"
-                        style="width:50px; height:50px; object-fit:cover; border-radius: 8px;">
+          <tbody>
+            {% for producto in productos %}
+            <tr>
+              <!-- THUMBNAIL / MEDIA -->
+              <td class="ps-4" style="width: 90px;">
+                <div class="position-relative bg-light rounded d-flex align-items-center justify-content-center overflow-hidden border" style="width:55px; height:55px;">
+                  {% if producto.imagen_display_url %}
+                    <img src="{{ producto.imagen_display_url }}" alt="{{ producto.nombre }}" class="w-100 h-100 object-fit-contain p-1">
                   {% else %}
-                    <div class="bg-light border rounded d-flex align-items-center justify-content-center" 
-                        style="width:50px; height:50px;">
-                      <i class="fas fa-camera text-muted"></i>
-                    </div>
+                    <i class="fas fa-gem text-gold-dim fs-4"></i>
                   {% endif %}
-                </td>
 
-                <!-- NOMBRE Y DESCRIPCIÓN -->
-                <td>
-                    <div class="d-flex flex-column">
-                        <span class="fw-bold text-dark">{{ producto.nombre }}</span>
-                        {% if producto.descripcion %}
-                            <small class="text-muted text-truncate" style="max-width: 250px;">
-                                {{ producto.descripcion }}
-                            </small>
-                        {% endif %}
-                    </div>
-                </td>
-
-                <!-- CATEGORÍAS (MÁXIMO 3) -->
-                <td style="max-width: 250px;">
-                  <div class="d-flex flex-wrap gap-1">
-                    {# 1. Mostramos solo las primeras 3 categorías #}
-                    {% for c in producto.categorias.all|slice:":3" %}
-                        <span class="badge bg-light text-dark border">
-                            {{ c.nombre }}
-                        </span>
-                    {% empty %}
-                        <span class="text-muted small fst-italic">Sin categoría</span>
-                    {% endfor %}
-
-                    {# 2. Calculamos si sobran categorías #}
-                    {% with total=producto.categorias.count %}
-                        {% if total > 3 %}
-                            <span class="badge bg-secondary" title="Ver todas en editar">
-                                +{{ total|add:"-3" }} más
-                            </span>
-                        {% endif %}
-                    {% endwith %}
-                  </div>
-                </td>
-
-                <!-- PRECIO -->
-                {% if SHOW_PRICES %}
-                <td class="fw-bold text-success text-nowrap">
-                    ${{ producto.precio }}
-                </td>
-                {% endif %}
-
-                <!-- ESTADO -->
-                <td>
-                  {% if producto.agotado %}
-                    <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger border border-danger">
-                      Agotado
-                    </span>
-                  {% else %}
-                    <span class="badge rounded-pill bg-success bg-opacity-10 text-success border border-success">
-                      Disponible
-                    </span>
+                  {% if producto.v360_url or producto.video_url %}
+                    <span class="position-absolute bottom-0 end-0 badge bg-primary text-white p-1" style="font-size: 0.6rem;" title="360 Interactive">360°</span>
                   {% endif %}
-                </td>
+                </div>
+              </td>
 
-                <!-- ACCIONES (BOTONES ALINEADOS) -->
-                <td class="text-end pe-4 text-nowrap" style="width: 1%;">
-                  <div class="d-flex justify-content-end gap-2">
-                      
-                      <!-- Botón Editar -->
-                      <button type="button" 
-                              class="btn btn-sm btn-outline-primary"
-                              data-bs-toggle="modal"
-                              data-bs-target="#modalEdit{{ producto.id }}"
-                              data-bs-toggle="tooltip" 
-                              title="Editar">
-                        <i class="fas fa-pen fa-fw"></i>
-                      </button>
-                      
-                      <!-- Botón Toggle Estado -->
-                      <form method="post" class="m-0 p-0 d-flex">
-                        {% csrf_token %}
-                        <button type="submit" name="toggle_agotado" value="{{ producto.id }}"
-                          class="btn btn-sm {% if producto.agotado %}btn-outline-success{% else %}btn-outline-warning{% endif %}"
-                          title="{% if producto.agotado %}Activar{% else %}Agotar{% endif %}">
-                          <i class="fas fa-{% if producto.agotado %}box-open{% else %}box{% endif %} fa-fw"></i>
-                        </button>
-                      </form>
-                      
-                      <!-- Botón Eliminar (Modal) -->
-                      {% comment %} 
-                      <button type="button" 
-                              class="btn btn-sm btn-outline-danger"
-                              data-bs-toggle="modal" 
-                              data-bs-target="#modalEliminarProducto"
-                              data-bs-id="{{ producto.id }}"
-                              data-bs-nombre="{{ producto.nombre }}"
-                              title="Eliminar">
-                        <i class="fas fa-trash fa-fw"></i>
-                      </button>
-                      {% endcomment %}
-                  </div>
-                </td>
+              <!-- DIAMANTE / FORMA -->
+              <td>
+                <div class="d-flex flex-column">
+                  <span class="fw-bold text-dark font-display fs-6">{{ producto.carats }} ct {{ producto.shape }}</span>
+                  <span class="text-muted small">ID: {{ producto.nivoda_id|truncatechars:20 }}</span>
+                </div>
+              </td>
 
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="6" class="text-center py-5 bg-light">
-                  <div class="text-muted opacity-75">
-                      <i class="fas fa-search fa-2x mb-3"></i>
-                      <p class="mb-0">No se encontraron productos.</p>
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
+              <!-- ESPECIFICACIONES 4Cs -->
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  <span class="badge bg-light text-dark border">Color {{ producto.color }}</span>
+                  <span class="badge bg-light text-dark border">{{ producto.clarity }}</span>
+                  {% if producto.cut and producto.cut != '-' %}
+                    <span class="badge bg-light text-dark border">Corte {{ producto.cut }}</span>
+                  {% endif %}
+                  {% if producto.polish and producto.polish != '-' %}
+                    <span class="badge bg-light text-dark border">Pulido {{ producto.polish }}</span>
+                  {% endif %}
+                </div>
+              </td>
+
+              <!-- CERTIFICADO -->
+              <td>
+                <div class="d-flex flex-column align-items-start gap-1">
+                  <span class="badge {% if producto.lab == 'GIA' %}bg-dark text-white{% else %}bg-primary text-white{% endif %}">
+                    {{ producto.lab }}
+                  </span>
+                  {% if producto.cert_number %}
+                    <small class="text-muted">#: {{ producto.cert_number }}</small>
+                  {% endif %}
+                  {% if producto.cert_pdf %}
+                    <a href="{{ producto.cert_pdf }}" target="_blank" rel="noopener" class="text-danger small text-decoration-none">
+                      <i class="fas fa-file-pdf me-1"></i>Ver PDF
+                    </a>
+                  {% endif %}
+                </div>
+              </td>
+
+              <!-- PRECIO -->
+              <td class="fw-bold text-dark font-display fs-6">
+                ${{ producto.precio|floatformat:2 }}
+              </td>
+
+              <!-- ACCIONES -->
+              <td class="text-end pe-4">
+                <div class="d-flex justify-content-end gap-2">
+                  <a href="{% url 'productos' %}?diamond_id={{ producto.id }}" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill" title="Ver en Tienda">
+                    <i class="fas fa-eye me-1"></i>Ver Ficha
+                  </a>
+                  <form method="post" action="{% url 'control_productos' %}" onsubmit="return confirm('¿Eliminar diamante de la base de datos local?');" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="eliminar_producto" value="{{ producto.id }}">
+                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle" title="Eliminar">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="fas fa-gem display-4 mb-3 text-muted opacity-50 d-block"></i>
+                <h5>No hay diamantes en el inventario</h5>
+                <p class="small">Utilice el panel de sincronización superior para descargar diamantes desde el API de Nivoda.</p>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
         </table>
       </div>
     </div>
+
+    <!-- PAGINACIÓN -->
+    {% if page_obj and page_obj.has_other_pages %}
+    <div class="card-footer bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+      <span class="small text-muted">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+      <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&shape={{ shape_filter }}&lab={{ lab_filter }}">Anterior</a></li>
+        {% endif %}
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&shape={{ shape_filter }}&lab={{ lab_filter }}">Siguiente</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    {% endif %}
   </div>
 
-</div> 
+</div>
 {% endblock %}
-
-
-<!-- =========== Bloque de modales =========== -->
-{% block modals %}
-
-  <!-- MODAL DE EDICIÓN (Uno por producto dentro del loop) -->
-  {% for producto in productos %}
-  <div class="modal fade" id="modalEdit{{ producto.id }}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Editar: {{ producto.nombre }}</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-
-        <form method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-          <div class="modal-body p-4">
-            <input type="hidden" name="editar_producto_id" value="{{ producto.id }}">
-            
-            <div class="row g-4">
-              <!-- Columna Izquierda -->
-              <div class="col-md-8">
-                <div class="form-floating mb-3">
-                  <input type="text" name="nombre" class="form-control" id="nom{{ producto.id }}" value="{{ producto.nombre }}" required>
-                  <label for="nom{{ producto.id }}">Nombre del Producto</label>
-                </div>
-
-                <div class="form-floating mb-3">
-                  <textarea name="descripcion" class="form-control" id="desc{{ producto.id }}" style="height: 120px">{{ producto.descripcion }}</textarea>
-                  <label for="desc{{ producto.id }}">Descripción</label>
-                </div>
-
-                <div class="mb-3 border rounded p-3 bg-light">
-                    <label class="form-label fw-bold small text-uppercase text-muted">Imágenes del Producto</label>
-                    <div class="d-flex align-items-center gap-3 mb-2">
-                        {% if producto.portada %}
-                            <img src="{{ producto.portada.url }}" class="rounded border bg-white" style="width: 80px; height: 80px; object-fit: cover;">
-                        {% else %}
-                             <div class="rounded border d-flex align-items-center justify-content-center bg-white" style="width: 80px; height: 80px;">
-                                 <i class="fas fa-image text-muted"></i>
-                             </div>
-                        {% endif %}
-                        <div class="flex-grow-1">
-                            <input type="file" name="imagenes" class="form-control form-control-sm" multiple>
-                            <small class="text-muted" style="font-size: 0.8rem;">Sube varias imágenes para el carrusel del producto.</small>
-                        </div>
-                    </div>
-                    {% if producto.imagenes.all %}
-                    <div class="mt-2">
-                        <label class="form-label small fw-bold">Ordenar imágenes (la primera será la portada)</label>
-                        <div id="imagenes-container-{{ producto.id }}">
-                            {% for imagen in producto.imagenes.all %}
-                            <div class="d-flex align-items-center gap-2 mb-1 sortable-item" data-id="{{ imagen.id }}">
-                                <button type="button" class="btn btn-sm btn-outline-secondary move-up"><i class="fas fa-arrow-up"></i></button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary move-down"><i class="fas fa-arrow-down"></i></button>
-                                <img src="{{ imagen.imagen.url }}" width="48" height="48" class="rounded" style="object-fit: cover;">
-                                <div class="form-check form-check-inline mb-0">
-                                    <input class="form-check-input" type="checkbox" name="eliminar_imagenes" value="{{ imagen.id }}">
-                                    <label class="form-check-label small text-danger">Eliminar</label>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-              </div>
-
-              <!-- Columna Derecha -->
-              <div class="col-md-4">
-                <div class="bg-light p-3 rounded h-100 border">
-
-                  {% if SHOW_PRICES %}
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Precio</label>
-                    <div class="input-group">
-                      <span class="input-group-text">$</span>
-                      <input type="number" step="0.01" name="precio" class="form-control precio-unico-input" value="{{ producto.precio }}" {% if producto.por_peso %}disabled{% endif %} required>
-                    </div>
-                  </div>
-                  {% endif %}
-
-                  <div class="form-check form-switch mb-3">
-                    <input class="form-check-input check-por-peso" type="checkbox" role="switch" name="por_peso" id="checkPorPeso{{ producto.id }}" {% if producto.por_peso %}checked{% endif %}>
-                    <label class="form-check-label fw-bold" for="checkPorPeso{{ producto.id }}">¿Vender por peso?</label>
-                  </div>
-
-                  <div class="multi-precio-por-peso-wrap" id="multiPrecioPorPesoWrap{{ producto.id }}" style="display:{% if producto.por_peso %}block{% else %}none{% endif %};">
-                    <label class="form-label fw-bold">Precios por Peso</label>
-                    <div class="multi-precio-por-peso-list">
-                      {% for p in producto.precios_por_peso.all %}
-                        <div class="precio-peso-item d-flex align-items-center gap-2 mb-2">
-                          <span class="peso-label">Peso</span>
-                          <input type="number" step="0.01" min="0.01" name="precios_por_peso_peso[]" class="form-control form-control-sm" placeholder="Peso (g)" style="width:90px;" value="{{ p.peso }}">
-                          <span>x</span>
-                          <input type="number" step="0.01" min="0.01" name="precios_por_peso_precio[]" class="form-control form-control-sm" placeholder="Precio $" style="width:110px;" value="{{ p.precio }}">
-                          <button type="button" class="btn btn-danger btn-sm btn-remove-precio-peso"><i class="fas fa-trash"></i></button>
-                        </div>
-                      {% endfor %}
-                    </div>
-                    <button type="button" class="btn btn-outline-secondary btn-sm mt-2 btn-add-precio-por-peso">
-                      <i class="fas fa-plus"></i> Agregar precio por peso
-                    </button>
-                    <div class="form-text">Ejemplo: 2g = $100, 3g = $150, etc.</div>
-                  </div>
-                  
-                  <!-- 3. SELECTOR DE CATEGORÍAS (RECURSIVO MULTIPLE) -->
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Categorías</label>
-                    <select name="categoria_ids" class="form-select" multiple size="8">
-                      {% for cat in categorias %}
-                        {% if not cat.padre %}
-                            {# Usamos el include recursivo en modo 'multiple' #}
-                            {# Pasamos 'producto.categorias.all' como la selección actual #}
-                            {% include "includes/opcion_select_recursiva.html" with cat=cat level=0 selection_mode='multiple' current_selected=producto.categorias.all %}
-                        {% endif %}
-                      {% endfor %}
-                    </select>
-                    <small class="text-muted d-block mt-1"><i class="fas fa-info-circle me-1"></i>Ctrl + Clic para seleccionar varias</small>
-                  </div>
-                  
-                  <hr>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="agotado" id="agotado{{ producto.id }}" {% if producto.agotado %}checked{% endif %}>
-                    <label class="form-check-label fw-bold" for="agotado{{ producto.id }}">Marcar como Agotado</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-footer bg-light">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" name="editar_producto" class="btn btn-primary px-4"><i class="fas fa-save me-1"></i> Guardar Cambios</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  {% endfor %}
-
-  <!-- 4. MODAL ÚNICO DE ELIMINACIÓN DE PRODUCTO -->
-  <div class="modal fade" id="modalEliminarProducto" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        
-        <!-- Header Rojo -->
-        <div class="modal-header bg-danger text-white">
-          <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i> Confirmar Eliminación</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-
-        <!-- Body Centrado con Icono -->
-        <div class="modal-body text-center p-4">
-          <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
-          <p class="mb-1">¿Estás seguro de que deseas eliminar el producto:</p>
-          
-          <!-- Aquí se inyectará el nombre vía JS -->
-          <h4 id="nombreProductoBorrar" class="fw-bold my-2"></h4>
-          
-          <p class="text-danger small mt-2">
-              <i class="fas fa-info-circle me-1"></i> Esta acción es permanente y no se puede deshacer.
-          </p>
-        </div>
-
-        <!-- Footer Centrado -->
-        <div class="modal-footer justify-content-center">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          
-          <form method="post">
-              {% csrf_token %}
-              <!-- El value se inyectará vía JS -->
-              <button type="submit" name="eliminar_producto" id="btnConfirmarEliminarProducto" value="" class="btn btn-danger">
-                  Sí, Eliminar
-              </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SCRIPT PARA EL MODAL DE ELIMINACIÓN -->
-  <script>
-      document.addEventListener('DOMContentLoaded', function () {
-          // Lógica para el modal de eliminar PRODUCTO
-          var modalEliminarProd = document.getElementById('modalEliminarProducto');
-          
-          if (modalEliminarProd) {
-              modalEliminarProd.addEventListener('show.bs.modal', function (event) {
-                  // Botón que disparó el modal
-                  var button = event.relatedTarget;
-                  
-                  // Extraer información de los atributos data-bs-*
-                  var prodId = button.getAttribute('data-bs-id');
-                  var prodNombre = button.getAttribute('data-bs-nombre');
-                  
-                  // Elementos dentro del modal
-                  var modalNombre = modalEliminarProd.querySelector('#nombreProductoBorrar');
-                  var modalBtn = modalEliminarProd.querySelector('#btnConfirmarEliminarProducto');
-                  
-                  // Actualizar contenido
-                  modalNombre.textContent = prodNombre;
-                  modalBtn.value = prodId;
-              });
-          }
-
-          // Script para multi-precio por peso en edición
-          document.querySelectorAll('.check-por-peso').forEach(function(check) {
-            check.addEventListener('change', function() {
-              const id = this.id.replace('checkPorPeso', '');
-              const wrap = document.getElementById('multiPrecioPorPesoWrap' + id);
-              const precioUnico = this.closest('.bg-light').querySelector('.precio-unico-input');
-              if (this.checked) {
-                wrap.style.display = 'block';
-                if (precioUnico) { precioUnico.disabled = true; precioUnico.value = ''; }
-              } else {
-                wrap.style.display = 'none';
-                if (precioUnico) { precioUnico.disabled = false; }
-                // Limpiar los precios por peso
-                wrap.querySelector('.multi-precio-por-peso-list').innerHTML = '';
-              }
-            });
-          });
-
-          document.querySelectorAll('.btn-add-precio-por-peso').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-              const wrap = this.closest('.multi-precio-por-peso-wrap');
-              const list = wrap.querySelector('.multi-precio-por-peso-list');
-              const div = document.createElement('div');
-              div.className = 'precio-peso-item d-flex align-items-center gap-2 mb-2';
-              div.innerHTML = `
-                <span class="peso-label">Peso</span>
-                <input type="number" step="0.01" min="0.01" name="precios_por_peso_peso[]" class="form-control form-control-sm" placeholder="Peso (g)" style="width:90px;">
-                <span>x</span>
-                <input type="number" step="0.01" min="0.01" name="precios_por_peso_precio[]" class="form-control form-control-sm" placeholder="Precio $" style="width:110px;">
-                <button type="button" class="btn btn-danger btn-sm btn-remove-precio-peso"><i class="fas fa-trash"></i></button>
-              `;
-              div.querySelector('.btn-remove-precio-peso').onclick = function() {
-                div.remove();
-              };
-              list.appendChild(div);
-            });
-          });
-
-          document.querySelectorAll('.multi-precio-por-peso-list').forEach(function(list) {
-            list.querySelectorAll('.btn-remove-precio-peso').forEach(function(btn) {
-              btn.onclick = function() {
-                btn.closest('.precio-peso-item').remove();
-              };
-            });
-          });
-          document.querySelectorAll('.move-up').forEach(btn => {
-              btn.addEventListener('click', function() {
-                  const item = this.closest('.sortable-item');
-                  const prev = item.previousElementSibling;
-                  if (prev && prev.classList.contains('sortable-item')) {
-                      item.parentNode.insertBefore(item, prev);
-                  }
-              });
-          });
-          document.querySelectorAll('.move-down').forEach(btn => {
-              btn.addEventListener('click', function() {
-                  const item = this.closest('.sortable-item');
-                  const next = item.nextElementSibling;
-                  if (next && next.classList.contains('sortable-item')) {
-                      item.parentNode.insertBefore(next, item);
-                  }
-              });
-          });
-
-          // On form submit, add order hidden inputs
-          document.querySelectorAll('form').forEach(form => {
-              form.addEventListener('submit', function(e) {
-                  const containers = this.querySelectorAll('[id^="imagenes-container-"]');
-                  containers.forEach(container => {
-                      const items = container.querySelectorAll('.sortable-item');
-                      items.forEach((item, index) => {
-                          const id = item.dataset.id;
-                          let input = this.querySelector(`input[name="orden_${id}"]`);
-                          if (!input) {
-                              input = document.createElement('input');
-                              input.type = 'hidden';
-                              input.name = `orden_${id}`;
-                              this.appendChild(input);
-                          }
-                          input.value = index;
-                      });
-                  });
-              });
-          });
-      });
-  </script>
-
-{% endblock modals %}

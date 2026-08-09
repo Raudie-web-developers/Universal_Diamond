@@ -29,6 +29,24 @@ class Product(models.Model):
     creado = models.DateTimeField(null=True, blank=True)
     agotado = models.BooleanField(default=False)
     por_peso = models.BooleanField(default=False, help_text="¿El producto se vende por peso?")
+    
+    # Nivoda Diamond fields
+    nivoda_id = models.CharField(max_length=150, null=True, blank=True, db_index=True)
+    shape = models.CharField(max_length=50, null=True, blank=True)
+    carats = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    color = models.CharField(max_length=20, null=True, blank=True)
+    clarity = models.CharField(max_length=20, null=True, blank=True)
+    cut = models.CharField(max_length=20, null=True, blank=True)
+    polish = models.CharField(max_length=50, null=True, blank=True)
+    symmetry = models.CharField(max_length=50, null=True, blank=True)
+    lab = models.CharField(max_length=20, null=True, blank=True)
+    cert_number = models.CharField(max_length=100, null=True, blank=True)
+    cert_pdf = models.URLField(max_length=500, null=True, blank=True)
+    image_url = models.URLField(max_length=500, null=True, blank=True)
+    video_url = models.URLField(max_length=500, null=True, blank=True)
+    v360_url = models.URLField(max_length=500, null=True, blank=True)
+    is_diamond = models.BooleanField(default=True)
+
     def get_precios_por_peso(self):
         """Devuelve los precios por peso asociados a este producto, si aplica."""
         if not self.por_peso:
@@ -38,6 +56,26 @@ class Product(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    @property
+    def price(self):
+        return self.precio
+
+    @property
+    def tiene_360(self):
+        return bool(self.v360_url or self.video_url)
+
+    @property
+    def media_embed_url(self):
+        return self.v360_url or self.video_url or ""
+
+    @property
+    def imagen_display_url(self):
+        if self.imagen:
+            return self.imagen.url
+        if self.image_url:
+            return self.image_url
+        return ""
 
     @property
     def portada(self):
@@ -105,6 +143,7 @@ class OrdenItem(models.Model):
     producto = models.ForeignKey(Product, on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    detalles_diamante = models.TextField(null=True, blank=True) # JSON con especificaciones del diamante snapshot
 
     class Meta:
         db_table = 'app1_cotizacionitem'  # Conserva tabla histórica de cotizacionitems

@@ -46,33 +46,33 @@ def _get_cart_count(request):
 from django.db.models import Sum, Min
 
 
+from .nivoda import NivodaAPI
+import json
+from math import ceil
+
 def index(request):
-    categoria_id = request.GET.get('categoria')
-    categorias = Category.objects.filter(padres__isnull=True)
-
-    productos = Product.objects.filter(
-        ordenitem__orden__es_venta=True
-    ).annotate(
-        total_vendido=Sum('ordenitem__cantidad')
-    ).order_by('-total_vendido')[:3]
-
-    if categoria_id:
-        try:
-            productos = productos.filter(categorias__id=int(categoria_id))
-        except (ValueError, TypeError):
-            pass
-
     cart_count = _get_cart_count(request)
-
     whatsapp_url = get_whatsapp_url()
     whatsapp_number = get_whatsapp_empresa()
-    # Limpiar el número para WhatsApp (solo dígitos, sin espacios ni símbolos)
     whatsapp_number_clean = ''.join(ch for ch in whatsapp_number if ch.isdigit()) if whatsapp_number else ''
 
+    # Featured diamonds from local DB
+    featured_diamonds = Product.objects.filter(is_diamond=True).order_by('-carats')[:6]
+
+    shapes_grid = [
+        {'name': 'Round', 'code': 'ROUND', 'icon': '💎'},
+        {'name': 'Oval', 'code': 'OVAL', 'icon': '🥚'},
+        {'name': 'Cushion', 'code': 'CUSHION', 'icon': '🔲'},
+        {'name': 'Princess', 'code': 'PRINCESS', 'icon': '⬛'},
+        {'name': 'Emerald', 'code': 'EMERALD', 'icon': '▭'},
+        {'name': 'Radiant', 'code': 'RADIANT', 'icon': '🔹'},
+        {'name': 'Pear', 'code': 'PEAR', 'icon': '💧'},
+        {'name': 'Marquise', 'code': 'MARQUISE', 'icon': '👁️'},
+    ]
+
     return render(request, 'index.html', {
-        'categorias': categorias,
-        'productos': productos,
-        'categoria_id': categoria_id,
+        'featured_diamonds': featured_diamonds,
+        'shapes_grid': shapes_grid,
         'cart_count': cart_count,
         'whatsapp_url': whatsapp_url,
         'whatsapp_number': whatsapp_number,
@@ -81,106 +81,154 @@ def index(request):
 
 
 def tienda(request):
-    categorias = Category.objects.prefetch_related('subcategorias').filter(padres__isnull=True)
-    productos = Product.objects.prefetch_related('categorias').all()
+    # Retrieve diamond filter parameters from GET
+    selected_shapes = request.GET.getlist('shape')
+    if not selected_shapes and request.GET.get('shape'):
+        selected_shapes = [request.GET.get('shape')]
 
-    q = request.GET.get('q', '').strip()
-    categoria_id = request.GET.get('categoria', '').strip()
-    subcategoria_id = request.GET.get('subcategoria', '').strip()
-    agotado_filter = request.GET.get('agotado', '').strip()
+    selected_colors = request.GET.getlist('color')
+    selected_clarities = request.GET.getlist('clarity')
+    selected_cuts = request.GET.getlist('cut')
+    selected_labs = request.GET.getlist('lab')
 
-    if q:
-        from django.db.models import Q
-        productos = productos.filter(Q(nombre__icontains=q) | Q(descripcion__icontains=q))
+    def _get_float(key, default=None):
+        val = request.GET.get(key, '').strip()
+        if val:
+            try:
+                return float(val)
+            except ValueError:
+                pass
+        return default
 
-    categoria_seleccionada = None
-    if categoria_id:
-        try:
-            cid = int(categoria_id)
-            categoria_seleccionada = Category.objects.prefetch_related('subcategorias').get(id=cid)
-            if subcategoria_id:
-                productos = productos.filter(categorias__id=int(subcategoria_id))
-            else:
-                ids_a_buscar = list(categoria_seleccionada.subcategorias.values_list('id', flat=True))
-                ids_a_buscar.append(cid)
-                productos = productos.filter(categorias__id__in=ids_a_buscar)
-        except (ValueError, TypeError, Category.DoesNotExist):
-            pass
+    min_carats = _get_float('min_carats')
+    max_carats = _get_float('max_carats')
+    min_price = _get_float('min_price')
+    max_price = _get_float('max_price')
 
-    if agotado_filter == '1':
-        productos = productos.filter(agotado=True)
-    elif agotado_filter == '0':
-        productos = productos.filter(agotado=False)
+    order_by = request.GET.get('order_by', 'price')
+    order_dir = request.GET.get('order_dir', 'ASC')
 
-    productos = productos.distinct().order_by('-creado').annotate(
-        precio_minimo=Min('precios_por_peso__precio')
-    )
+    try:
+        page = int(request.GET.get('page', '1'))
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
+
+    # Query local DB Products for diamonds
+    qs = Product.objects.filter(is_diamond=True)
+
+    if selected_shapes:
+        qs = qs.filter(shape__in=[s.upper() for s in selected_shapes if s])
+    if selected_colors:
+        qs = qs.filter(color__in=[c.upper() for c in selected_colors if c])
+    if selected_clarities:
+        qs = qs.filter(clarity__in=[cl.upper() for cl in selected_clarities if cl])
+    if selected_cuts:
+        qs = qs.filter(cut__in=[ct.upper() for ct in selected_cuts if ct])
+    if selected_labs:
+        qs = qs.filter(lab__in=[l.upper() for l in selected_labs if l])
+
+    if min_carats is not None:
+        qs = qs.filter(carats__gte=min_carats)
+    if max_carats is not None:
+        qs = qs.filter(carats__lte=max_carats)
+
+    if min_price is not None:
+        qs = qs.filter(precio__gte=min_price)
+    if max_price is not None:
+        qs = qs.filter(precio__lte=max_price)
+
+    if order_by == 'carats':
+        order_field = '-carats' if order_dir.upper() == 'DESC' else 'carats'
+    else:
+        order_field = '-precio' if order_dir.upper() == 'DESC' else 'precio'
+
+    qs = qs.order_by(order_field)
+
+    from django.core.paginator import Paginator
+    limit = 12
+    paginator = Paginator(qs, limit)
+    page_obj = paginator.get_page(page)
 
     cart_count = _get_cart_count(request)
     whatsapp_url = get_whatsapp_url()
     whatsapp_number = get_whatsapp_empresa()
 
+    all_shapes = ['ROUND', 'OVAL', 'CUSHION', 'PRINCESS', 'EMERALD', 'RADIANT', 'PEAR', 'MARQUISE', 'HEART', 'ASSCHER']
+    all_colors = ['D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+    all_clarities = ['FL', 'IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'I1']
+    all_cuts = ['IDEAL', 'EXCELLENT', 'VERY_GOOD', 'GOOD']
+    all_labs = ['GIA', 'IGI', 'HRD', 'EGL']
+
     return render(request, 'tienda.html', {
-        'categorias': categorias,
-        'productos': productos,
-        'q': q,
-        'categoria_id': categoria_id,
-        'subcategoria_id': subcategoria_id,
-        'categoria_seleccionada': categoria_seleccionada,
-        'agotado_filter': agotado_filter,
+        'diamonds': page_obj.object_list,
+        'total_count': paginator.count,
+        'page': page_obj.number,
+        'total_pages': paginator.num_pages,
+        'has_prev': page_obj.has_previous(),
+        'has_next': page_obj.has_next(),
+        'prev_page': page_obj.previous_page_number() if page_obj.has_previous() else 1,
+        'next_page': page_obj.next_page_number() if page_obj.has_next() else 1,
+        'selected_shapes': selected_shapes,
+        'selected_colors': selected_colors,
+        'selected_clarities': selected_clarities,
+        'selected_cuts': selected_cuts,
+        'selected_labs': selected_labs,
+        'min_carats': min_carats or '',
+        'max_carats': max_carats or '',
+        'min_price': min_price or '',
+        'max_price': max_price or '',
+        'order_by': order_by,
+        'order_dir': order_dir,
+        'all_shapes': all_shapes,
+        'all_colors': all_colors,
+        'all_clarities': all_clarities,
+        'all_cuts': all_cuts,
+        'all_labs': all_labs,
         'cart_count': cart_count,
         'whatsapp_url': whatsapp_url,
         'whatsapp_number': whatsapp_number,
     })
 
 
-def productos(request, producto_id):
-    producto = get_object_or_404(Product, id=producto_id)
-    imagenes = list(producto.imagenes.order_by('orden'))
-    if not imagenes and producto.imagen:
-        imagenes = [producto.imagen]
+def productos(request, producto_id=None):
+    diamond_id = request.GET.get('diamond_id') or request.GET.get('id')
+    producto = None
 
-    sugeridos = Product.objects.exclude(id=producto.id)
-    first_cat = producto.categorias.first()
-    if first_cat:
-        sugeridos = sugeridos.filter(categorias=first_cat)
-    sugeridos = list(sugeridos)
-    random.shuffle(sugeridos)
-    sugeridos = sugeridos[:4]
+    if diamond_id:
+        from django.db.models import Q
+        producto = Product.objects.filter(Q(id=int(diamond_id) if str(diamond_id).isdigit() else 0) | Q(nivoda_id=diamond_id)).first()
+    elif producto_id:
+        producto = get_object_or_404(Product, id=producto_id)
+
+    if not producto:
+        messages.error(request, 'El diamante solicitado no se encuentra disponible.')
+        return redirect('tienda')
+
+    sugeridos = Product.objects.filter(is_diamond=True).exclude(id=producto.id).order_by('?')[:4]
 
     cart_count = _get_cart_count(request)
     whatsapp_url = get_whatsapp_url()
     whatsapp_number = get_whatsapp_empresa()
 
-    precios_por_peso = None
-    if getattr(producto, 'por_peso', False):
-        precios_por_peso = list(getattr(producto, 'precios_por_peso', []).all())
-
     return render(request, 'productos.html', {
+        'diamond': producto,
         'producto': producto,
-        'imagenes': imagenes,
         'sugeridos': sugeridos,
         'cart_count': cart_count,
         'whatsapp_url': whatsapp_url,
         'whatsapp_number': whatsapp_number,
-        'precios_por_peso': precios_por_peso,
     })
 
 
-# ─── ORDEN ADD ────────────────────────────────────────────────────────────────
-# Estructura del carrito en sesión:
-#   Sin multiprecio → cart["42"] = 3            (entero = cantidad)
-#   Con multiprecio → cart["42"] = {            (dict con detalle)
-#       "cantidad": 2,
-#       "precio": "765.00",
-#       "peso": "1.80",
-#       "precio_peso_id": "3",
-#   }
 def orden_add(request):
     if request.method != 'POST':
         return redirect(request.META.get('HTTP_REFERER', reverse('tienda')))
 
-    prod_id = request.POST.get('product_id')
+    diamond_id = request.POST.get('diamond_id', '').strip()
+    prod_id = request.POST.get('product_id', '').strip()
+
     try:
         qty = int(request.POST.get('cantidad', '1'))
         if qty < 1:
@@ -188,140 +236,107 @@ def orden_add(request):
     except (ValueError, TypeError):
         qty = 1
 
-    if not prod_id:
-        messages.error(request, 'Producto inválido')
+    cart = dict(request.session.get('orden', {}) or {})
+
+    target_id = diamond_id or prod_id
+    if not target_id:
+        messages.error(request, 'Selección de producto inválida.')
         return redirect(request.META.get('HTTP_REFERER', reverse('tienda')))
 
-    precio_seleccionado = request.POST.get('precio_seleccionado', '').strip()
-    peso_seleccionado   = request.POST.get('peso_seleccionado', '').strip()
-    precio_peso_id      = request.POST.get('precio_peso_id', '').strip()
+    from django.db.models import Q
+    prod = Product.objects.filter(Q(id=int(target_id) if str(target_id).isdigit() else 0) | Q(nivoda_id=target_id)).first()
 
-    cart = dict(request.session.get('orden', {}) or {})
-    key  = str(prod_id)
+    if not prod:
+        messages.error(request, 'El diamante o producto seleccionado no está disponible.')
+        return redirect(request.META.get('HTTP_REFERER', reverse('tienda')))
 
-    if precio_seleccionado:
-        # Producto con multiprecio
-        existing = cart.get(key)
-        if isinstance(existing, dict) and existing.get('precio_peso_id') == precio_peso_id:
-            # Mismo peso seleccionado → acumular cantidad
-            existing['cantidad'] = existing['cantidad'] + qty
-            cart[key] = existing
-        else:
-            # Variante nueva o diferente → reemplazar
-            cart[key] = {
-                'cantidad':       qty,
-                'precio':         precio_seleccionado,
-                'peso':           peso_seleccionado,
-                'precio_peso_id': precio_peso_id,
-            }
-    else:
-        # Producto sin multiprecio → entero simple
-        current = cart.get(key, 0)
-        if isinstance(current, dict):
-            current = current.get('cantidad', 0)
-        cart[key] = int(current) + qty
+    key = str(prod.id)
+    current = cart.get(key, 0)
+    if isinstance(current, dict):
+        current = current.get('cantidad', 0)
+    cart[key] = int(current) + qty
 
     request.session['orden'] = cart
     request.session.modified = True
-    messages.success(request, 'Producto agregado a la orden')
+    messages.success(request, f"¡'{prod.nombre}' agregado a tu orden!")
     return redirect(request.META.get('HTTP_REFERER', reverse('tienda')))
 
 
-# ─── ORDEN (carrito + checkout) ───────────────────────────────────────────────
 def orden(request):
     cart = request.session.get('orden', {}) or {}
-    product_ids = [int(k) for k in cart.keys() if k.isdigit()]
-    productos_qs = Product.objects.filter(id__in=product_ids)
-    prod_map = {p.id: p for p in productos_qs}
-
-    items    = []
+    items = []
     subtotal = Decimal('0.00')
 
-    for pid_str, entry in cart.items():
-        try:
-            pid = int(pid_str)
-        except ValueError:
+    # Fetch DB products map
+    db_pids = [int(k) for k in cart.keys() if k.isdigit()]
+    prod_map = {p.id: p for p in Product.objects.filter(id__in=db_pids)}
+
+    for key, entry in cart.items():
+        if not key.isdigit():
             continue
+        pid = int(key)
         prod = prod_map.get(pid)
         if not prod:
             continue
-
-        if isinstance(entry, dict):
-            cantidad = int(entry.get('cantidad', 1))
-            try:
-                precio_unit = Decimal(str(entry['precio']))
-            except Exception:
-                precio_unit = prod.precio
-            peso       = entry.get('peso', '')
-            item_total = precio_unit * cantidad
-            items.append({
-                'product':    prod,
-                'cantidad':   cantidad,
-                'precio_unit': precio_unit,
-                'peso':        peso,
-                'total':       item_total,
-                'es_por_peso': True,
-                'precio':      str(precio_unit),  # Para el payload a crud
-            })
-        else:
-            cantidad    = int(entry)
-            precio_unit = prod.precio
-            item_total  = precio_unit * cantidad
-            items.append({
-                'product':    prod,
-                'cantidad':   cantidad,
-                'precio_unit': precio_unit,
-                'peso':        '',
-                'total':       item_total,
-                'es_por_peso': False,
-                'precio':      str(precio_unit),
-            })
-
+        cantidad = int(entry if not isinstance(entry, dict) else entry.get('cantidad', 1))
+        precio_unit = prod.precio
+        item_total = precio_unit * cantidad
+        items.append({
+            'key': key,
+            'is_diamond': prod.is_diamond,
+            'product': prod,
+            'nombre': prod.nombre,
+            'cantidad': cantidad,
+            'precio_unit': precio_unit,
+            'total': item_total,
+            'precio': str(precio_unit),
+        })
         subtotal += item_total
 
-    codigo_descuento     = request.session.get('codigo_descuento', '') or ''
-    afiliado_valido      = None
+    codigo_descuento = request.session.get('codigo_descuento', '') or ''
+    afiliado_valido = None
     descuento_porcentaje = Decimal('0.00')
-    descuento_monto      = Decimal('0.00')
-    total_con_descuento  = subtotal
-    codigo_error         = ''
+    descuento_monto = Decimal('0.00')
+    total_con_descuento = subtotal
+    codigo_error = ''
 
     if codigo_descuento:
         afiliado_valido = Afiliado.objects.filter(codigo__iexact=codigo_descuento, activo=True).first()
         if afiliado_valido:
             descuento_porcentaje = Decimal(str(afiliado_valido.descuento))
-            descuento_monto      = (subtotal * descuento_porcentaje / Decimal('100')).quantize(Decimal('0.01'))
-            total_con_descuento  = (subtotal - descuento_monto).quantize(Decimal('0.01'))
+            descuento_monto = (subtotal * descuento_porcentaje / Decimal('100')).quantize(Decimal('0.01'))
+            total_con_descuento = (subtotal - descuento_monto).quantize(Decimal('0.01'))
         else:
-            codigo_error        = 'Código de descuento inválido o inactivo.'
+            codigo_error = 'Código de descuento inválido o inactivo.'
             total_con_descuento = subtotal
 
     if request.method == 'POST':
-        nombre           = request.POST.get('nombre', '').strip()
-        correo           = request.POST.get('correo', '').strip()
-        telefono         = request.POST.get('telefono', '').strip()
-        mensaje          = request.POST.get('mensaje', '').strip()
+        nombre = request.POST.get('nombre', '').strip()
+        correo = request.POST.get('correo', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        mensaje = request.POST.get('mensaje', '').strip()
         codigo_descuento = request.POST.get('codigo_descuento', '').strip().upper()
         request.session['codigo_descuento'] = codigo_descuento
         request.session.modified = True
 
-        afiliado_valido      = None
+        afiliado_valido = None
         descuento_porcentaje = Decimal('0.00')
-        descuento_monto      = Decimal('0.00')
-        total_con_descuento  = subtotal
-        codigo_error         = ''
+        descuento_monto = Decimal('0.00')
+        total_con_descuento = subtotal
+        codigo_error = ''
 
         if codigo_descuento:
             afiliado_valido = Afiliado.objects.filter(codigo__iexact=codigo_descuento, activo=True).first()
             if afiliado_valido:
                 descuento_porcentaje = Decimal(str(afiliado_valido.descuento))
-                descuento_monto      = (subtotal * descuento_porcentaje / Decimal('100')).quantize(Decimal('0.01'))
-                total_con_descuento  = (subtotal - descuento_monto).quantize(Decimal('0.01'))
+                descuento_monto = (subtotal * descuento_porcentaje / Decimal('100')).quantize(Decimal('0.01'))
+                total_con_descuento = (subtotal - descuento_monto).quantize(Decimal('0.01'))
             else:
                 codigo_error = 'Código de descuento inválido o inactivo.'
 
         ctx_error = {
-            'items': items, 'subtotal': subtotal,
+            'items': items,
+            'subtotal': subtotal,
             'total_con_descuento': total_con_descuento,
             'descuento_porcentaje': descuento_porcentaje,
             'descuento_monto': descuento_monto,
@@ -334,7 +349,7 @@ def orden(request):
         }
 
         if not nombre or not correo:
-            messages.error(request, 'Nombre y correo son obligatorios para enviar la orden.')
+            messages.error(request, 'Nombre y correo son obligatorios para procesar la orden de diamantes.')
             return render(request, 'orden.html', ctx_error)
 
         if codigo_descuento and not afiliado_valido:
@@ -351,6 +366,7 @@ def orden(request):
                 }
                 for it in items
             ]
+
             orden_obj = crud.crear_orden_desde_carrito(
                 cliente,
                 items_payload,
@@ -359,23 +375,24 @@ def orden(request):
                 descuento_afiliado=descuento_porcentaje,
             )
 
-            # ── Construir mensaje WhatsApp con precio real por peso ──
+            # Build WhatsApp message
             detalle_lines = []
             for it in items:
-                p   = it['product']
-                c   = it['cantidad']
-                pu  = float(it['precio_unit'])
+                p = it['product']
+                c = it['cantidad']
+                pu = float(it['precio_unit'])
                 tot = float(it['total'])
-                if it['es_por_peso']:
+                if p.is_diamond:
+                    cert_txt = f" | Cert {p.lab}: {p.cert_number}" if p.cert_number else ""
                     detalle_lines.append(
-                        f"{p.nombre} — {it['peso']}g x{c} (${pu:.2f} c/u) = ${tot:.2f}"
+                        f"💎 Diamante {p.carats} ct {p.shape} ({p.color}/{p.clarity}{cert_txt}) x{c} (${pu:,.2f}) = ${tot:,.2f}"
                     )
                 else:
                     detalle_lines.append(
-                        f"{p.nombre} x{c} (${pu:.2f} c/u) = ${tot:.2f}"
+                        f"💍 {p.nombre} x{c} (${pu:,.2f}) = ${tot:,.2f}"
                     )
 
-            productos_str  = "\n".join(detalle_lines)
+            productos_str = "\n".join(detalle_lines)
             total_whatsapp = float(total_con_descuento if afiliado_valido else subtotal)
 
             fecha_actual = timezone.now()
@@ -383,29 +400,23 @@ def orden(request):
                 fecha_actual = timezone.make_aware(fecha_actual)
             fecha_str = timezone.localtime(fecha_actual).strftime('%d/%m/%Y %H:%M')
 
-            saludo = AppConfig.get_valor('WHATSAPP_SALUDO', 'Hola, buenos días. Me interesa solicitar una cotización.')
+            saludo = AppConfig.get_valor('WHATSAPP_SALUDO', 'Hola, deseo solicitar la compra/apartado de la siguiente orden de diamantes en Universal Diamond.')
             texto_orden = (
-                f"📦 {saludo}\n\n"
+                f"💎 *UNIVERSAL DIAMOND - ORDEN DE COMPRA*\n\n"
                 f"🆔 Orden #: {orden_obj.id}\n"
                 f"👤 Cliente: {nombre} ({correo})\n"
                 f"📞 Teléfono: {telefono if telefono else 'N/A'}\n"
                 f"📅 Fecha: {fecha_str}\n\n"
-                f"🛒 Productos:\n{productos_str}\n\n"
-                f"💵 Subtotal: ${float(subtotal):.2f}\n"
-                + (f"🏷️ Código afiliado: {codigo_descuento} (-{descuento_porcentaje}%)\n" if afiliado_valido else "")
-                + f"💰 Total: ${total_whatsapp:.2f}\n\n"
-                f"📝 Mensaje adicional: {mensaje if mensaje else '-'}\n\n"
-                f"✅ ¡Gracias por tu pedido!"
+                f"🛒 Diamantes / Productos:\n{productos_str}\n\n"
+                f"💵 Subtotal: ${float(subtotal):,.2f}\n"
+                + (f"🏷️ Afiliado ({codigo_descuento}): -{descuento_porcentaje}%\n" if afiliado_valido else "")
+                + f"💰 *TOTAL: ${total_whatsapp:,.2f} USD*\n\n"
+                f"📝 Nota: {mensaje if mensaje else '-'}\n\n"
+                f"✨ ¡Gracias por elegir Universal Diamond!"
             )
 
             telefono_ventas = AppConfig.get_valor('WHATSAPP_EMPRESA') or getattr(settings, 'WHATSAPP_EMPRESA', '')
             telefono_ventas = (telefono_ventas or '').strip()
-
-            if not telefono_ventas:
-                messages.warning(request, 'Orden creada pero no hay número de WhatsApp configurado para ventas.')
-                request.session['orden'] = {}
-                request.session.modified = True
-                return render(request, 'cotizacion_success.html', {'cotizacion': orden_obj, 'cart_count': 0})
 
             def _clean_phone(raw):
                 cleaned = ''.join(ch for ch in raw if ch.isdigit())
@@ -413,8 +424,8 @@ def orden(request):
                     cleaned = '58' + cleaned.lstrip('0')
                 return cleaned
 
-            ventas_phone = _clean_phone(telefono_ventas)
-            whatsapp_url = f"https://wa.me/{ventas_phone}?text={quote(texto_orden)}"
+            ventas_phone = _clean_phone(telefono_ventas) if telefono_ventas else ''
+            whatsapp_url = f"https://wa.me/{ventas_phone}?text={quote(texto_orden)}" if ventas_phone else None
 
             request.session['orden'] = {}
             request.session.modified = True

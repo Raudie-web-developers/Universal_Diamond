@@ -16,6 +16,7 @@ urlpatterns = [
     path('usuarios/', views.gestion_usuarios, name='usuarios'),
     path('afiliados/', views.afiliados, name='afiliados'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('sincronizar_diamantes/', views.sincronizar_diamantes, name='sincronizar_diamantes'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
 ]

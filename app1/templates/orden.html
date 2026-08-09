@@ -88,8 +88,17 @@
                     <div class="cart-product-cell">
                       <div class="cart-product-dot"></div>
                       <div>
-                        <div class="cart-product-name">{{ it.product.nombre }}</div>
-                        <div class="cart-product-ref">Ref. #{{ it.product.id }}</div>
+                        {% if it.is_diamond %}
+                          <div class="cart-product-name text-primary font-weight-bold">
+                            <i class="fas fa-gem me-1 text-gold-dim"></i>{{ it.nombre }}
+                          </div>
+                          <div class="cart-product-ref small text-muted">
+                            Certificado {{ it.diamond_data.lab }}: {{ it.diamond_data.cert_number|default:"N/A" }}
+                          </div>
+                        {% else %}
+                          <div class="cart-product-name">{{ it.nombre }}</div>
+                          <div class="cart-product-ref">Ref. #{{ it.product.id }}</div>
+                        {% endif %}
                       </div>
                     </div>
                   </td>
@@ -97,8 +106,8 @@
                     <span class="cart-qty">{{ it.cantidad }}</span>
                   </td>
                   {% if SHOW_PRICES_CLIENTES %}
-                      <td class="text-end cart-price-unit">${{ it.precio_unit }}</td>
-                      <td class="text-end cart-price-total">${{ it.total }}</td>
+                      <td class="text-end cart-price-unit">${{ it.precio_unit|floatformat:2 }}</td>
+                      <td class="text-end cart-price-total">${{ it.total|floatformat:2 }}</td>
                   {% endif %}
                 </tr>
                 {% endfor %}

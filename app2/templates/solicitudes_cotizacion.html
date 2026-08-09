@@ -240,7 +240,21 @@
                   <tbody>
                     {% for it in items %}
                     <tr>
-                      <td>{{ it.producto.nombre }}</td>
+                      <td>
+                        <div class="fw-bold">{{ it.producto.nombre }}</div>
+                        {% if it.producto.is_diamond or it.producto.nivoda_id %}
+                        <div class="small text-muted">
+                          <span class="badge bg-dark text-warning">Diamante</span>
+                          {% if it.producto.cert_number %}Cert {{ it.producto.lab }}: <strong>{{ it.producto.cert_number }}</strong>{% endif %}
+                          {% if it.producto.cert_pdf %}
+                            <a href="{{ it.producto.cert_pdf }}" target="_blank" class="ms-1 text-danger"><i class="fas fa-file-pdf"></i> PDF</a>
+                          {% endif %}
+                          {% if it.producto.video_url %}
+                            <a href="{{ it.producto.video_url }}" target="_blank" class="ms-1 text-primary"><i class="fas fa-cube"></i> Video 360°</a>
+                          {% endif %}
+                        </div>
+                        {% endif %}
+                      </td>
                       <td class="text-center">{{ it.cantidad }}</td>
                       <td class="text-end">
                         ${% if it.precio_unitario %}

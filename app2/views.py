@@ -318,32 +318,48 @@ def control_productos(request):
         # Siempre redirigir después de un POST exitoso
         return redirect(reverse('control_productos'))
 
-    # --- Lógica GET para mostrar la página y filtros ---
-    # Tu código para el método GET es correcto y no necesita cambios.
-    categorias = obtener_categorias() # Asumo que esta función existe
-    productos = obtener_productos() # Asumo que esta función existe
+    # --- Lógica GET para inventario de diamantes ---
+    from app1.models import Product
+    from django.db.models import Q, Sum
+
+    productos = Product.objects.filter(is_diamond=True, carats__isnull=False)
 
     q = request.GET.get('q', '').strip()
-    categoria_id = request.GET.get('categoria', '').strip()
-    agotado_filter = request.GET.get('agotado', '').strip()
+    shape_filter = request.GET.get('shape', '').strip()
+    lab_filter = request.GET.get('lab', '').strip()
 
     if q:
-        productos = productos.filter(Q(nombre__icontains=q) | Q(descripcion__icontains=q))
-    if categoria_id:
-        productos = productos.filter(categorias__id=categoria_id)
-    if agotado_filter == '1':
-        productos = productos.filter(agotado=True)
-    elif agotado_filter == '0':
-        productos = productos.filter(agotado=False)
+        productos = productos.filter(
+            Q(nombre__icontains=q) |
+            Q(cert_number__icontains=q) |
+            Q(nivoda_id__icontains=q)
+        )
+    if shape_filter:
+        productos = productos.filter(shape__iexact=shape_filter)
+    if lab_filter:
+        productos = productos.filter(lab__iexact=lab_filter)
 
-    productos = productos.distinct().order_by('-creado')
+    total_diamantes = productos.count()
+    valor_total_inventario = productos.aggregate(total=Sum('precio'))['total'] or 0
+    diamantes_con_360 = productos.filter(
+        (Q(v360_url__isnull=False) & ~Q(v360_url='')) |
+        (Q(video_url__isnull=False) & ~Q(video_url=''))
+    ).count()
+
+    from django.core.paginator import Paginator
+    paginator = Paginator(productos.order_by('-carats'), 20)
+    page = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page)
 
     return render(request, 'control_productos.html', {
-        'productos': productos,
-        'categorias': categorias,
+        'productos': page_obj.object_list,
+        'page_obj': page_obj,
+        'total_diamantes': total_diamantes,
+        'valor_total_inventario': valor_total_inventario,
+        'diamantes_con_360': diamantes_con_360,
         'q': q,
-        'categoria_id': categoria_id,
-        'agotado_filter': agotado_filter,
+        'shape_filter': shape_filter,
+        'lab_filter': lab_filter,
     })
     
 # Nueva vista: listar solicitudes de cotización
@@ -521,8 +537,13 @@ def configuracion_whatsapp(request):
 
     from .crud import obtener_config, guardar_config
     whatsapp_empresa = obtener_config('WHATSAPP_EMPRESA', '')
-    default_saludo = "Hola, buenos días. Me interesa solicitar una cotización."
+    default_saludo = "Hola, deseo solicitar la compra/apartado de la siguiente orden de diamantes en Universal Diamond."
     whatsapp_saludo = obtener_config('WHATSAPP_SALUDO', default_saludo)
+
+    nivoda_url = obtener_config('NIVODA_API_URL', 'https://intg-customer-staging.nivodaapi.net/api/diamonds')
+    nivoda_user = obtener_config('NIVODA_USERNAME', 'testaccount@sample.com')
+    nivoda_pass = obtener_config('NIVODA_PASSWORD', 'staging-nivoda-22')
+    nivoda_markup = obtener_config('NIVODA_MARKUP_PERCENT', '0')
 
     if request.method == 'POST':
         # Formulario del número de WhatsApp
@@ -535,7 +556,7 @@ def configuracion_whatsapp(request):
                 messages.success(request, 'Número de WhatsApp actualizado.')
                 whatsapp_empresa = nuevo_numero
 
-        # Formulario del saludo de WhatsApp (único editable)
+        # Formulario del saludo de WhatsApp
         elif 'guardar_saludo' in request.POST:
             nuevo_saludo = request.POST.get('whatsapp_saludo', '').strip()
             if nuevo_saludo:
@@ -547,9 +568,32 @@ def configuracion_whatsapp(request):
                 messages.success(request, 'Saludo de WhatsApp restablecido al valor por defecto.')
                 whatsapp_saludo = default_saludo
 
+        # Formulario de credenciales Nivoda B2B API
+        elif 'guardar_nivoda' in request.POST:
+            url_val = request.POST.get('nivoda_api_url', '').strip()
+            user_val = request.POST.get('nivoda_username', '').strip()
+            pass_val = request.POST.get('nivoda_password', '').strip()
+            markup_val = request.POST.get('nivoda_markup_percent', '0').strip()
+
+            guardar_config('NIVODA_API_URL', url_val)
+            guardar_config('NIVODA_USERNAME', user_val)
+            guardar_config('NIVODA_PASSWORD', pass_val)
+            guardar_config('NIVODA_MARKUP_PERCENT', markup_val)
+
+            nivoda_url = url_val
+            nivoda_user = user_val
+            nivoda_pass = pass_val
+            nivoda_markup = markup_val
+
+            messages.success(request, 'Configuración de Nivoda API actualizada con éxito.')
+
     return render(request, 'configuracion_whatsapp.html', {
         'whatsapp_empresa': whatsapp_empresa,
         'whatsapp_saludo': whatsapp_saludo,
+        'nivoda_url': nivoda_url,
+        'nivoda_user': nivoda_user,
+        'nivoda_pass': nivoda_pass,
+        'nivoda_markup': nivoda_markup,
     })
 
 
@@ -1034,5 +1078,30 @@ def dashboard(request):
     }
 
     return render(request, 'dashboard.html', context)
+
+
+def sincronizar_diamantes(request):
+    user_id = request.session.get('user_admin_id')
+    if not user_id:
+        messages.error(request, 'Debe iniciar sesión primero')
+        return redirect('login')
+
+    if request.method == 'POST':
+        limit = int(request.POST.get('limit', '100'))
+        shapes = request.POST.getlist('shapes')
+
+        try:
+            from app1.nivoda import NivodaAPI
+            res = NivodaAPI.sync_diamonds_to_db(limit=limit, shapes=shapes)
+            messages.success(
+                request,
+                f"¡Sincronización completada! {res['total_fetched']} diamantes procesados desde Nivoda API. "
+                f"Nuevos en BD: {res['created']}, Actualizados: {res['updated']}."
+            )
+        except Exception as e:
+            print(f"Error sincronizando diamantes: {e}")
+            messages.error(request, f"Error durante la sincronización con Nivoda API: {e}")
+
+    return redirect(request.META.get('HTTP_REFERER', reverse('control_productos')))
 
 

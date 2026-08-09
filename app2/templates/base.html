@@ -3,287 +3,230 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>{% block title %}Panel de Administración {% endblock %}</title>
+    <title>{% block title %}Universal Diamond — Panel de Control{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Sistema de administración - Gestión de productos y cotizaciones"
-    />
+    <meta name="description" content="Universal Diamond — Panel de administración de diamantes certificados B2B" />
 
-    <!-- Fuentes + Bootstrap + Iconos -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-     <link href=https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css rel=stylesheet> 
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap + Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
-    <link
-      href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <!-- Estilos principales -->
+
+    <!-- Admin Design System — Luxury Diamond Dark -->
     <link rel="stylesheet" href="{% static 'css/admin.css' %}" />
 
     {% block extra_head %}{% endblock %}
-
-    <!-- CSS INLINE PARA CORREGIR EL COMPORTAMIENTO FLEX DEL MAIN -->
-    <style>
-      /* Asegura que el área de contenido ocupe al menos toda la altura de la pantalla menos el header */
-      /* Ajusta '60px' a la altura real de tu .admin-header si es diferente */
-      .content-area {
-        min-height: calc(100vh - 60px);
-      }
-      .footer {
-        margin-top: auto; /* Empuja el footer hacia abajo si hay poco contenido */
-        background-color: #f8f9fa; /* Color de fondo ligero para diferenciar */
-        border-top: 1px solid #dee2e6;
-        padding: 1rem 0;
-      }
-    </style>
   </head>
   <body>
-    <!-- HEADER SUPERIOR -->
+
+    <!-- ╔══ HEADER ═══════════════════════════════════════════╗ -->
     <header class="admin-header">
       <div class="header-content">
+
         <div class="header-left">
-          <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menú">
             <i class="fas fa-bars"></i>
           </button>
           <a href="{% url 'registro' %}" class="brand">
-          <img src="{% static 'images/logo.png' %}" alt="logo" style="height: 50px;">
+            <img src="{% static 'images/logo_diamond.png' %}" alt="Universal Diamond" style="height:46px;">
+          </a>
         </div>
-          <!-- Reloj y fecha en el centro del navbar -->
-          <div class="header-center text-center flex-grow-1 d-flex justify-content-center align-items-center">
-            {% now "l, d \d\e F \d\e Y — H:i:s" as reloj_fecha_ve %}
-            <span id="reloj-fecha" class="fw-bold" style="font-size:1.1rem;">{{ reloj_fecha_ve }}</span>
-          </div>
+
+        <!-- Clock -->
+        <div class="header-center">
+          <span id="reloj-fecha">{% now "l, d \d\e F \d\e Y" %}</span>
+        </div>
+
         <div class="header-right">
           <form action="{% url 'logout' %}" method="post" class="d-inline">
             {% csrf_token %}
-            <button
-              type="submit"
-              class="btn btn-sm btn-outline-light rounded-pill"
-            >
-              <i class="fas fa-power-off"></i> Salir
+            <button type="submit" class="btn btn-outline-light btn-sm rounded-pill">
+              <i class="fas fa-sign-out-alt me-1"></i>Salir
             </button>
           </form>
         </div>
+
       </div>
     </header>
 
-      <!-- El reloj ahora usa la hora local de Venezuela directamente desde Django, sin offset manual. -->
-
-    <!-- SIDEBAR -->
+    <!-- ╔══ SIDEBAR ══════════════════════════════════════════╗ -->
     <aside class="sidebar" id="sidebar">
+
       <div class="sidebar-header">
         <h5>Panel de Control</h5>
       </div>
+
       <ul class="nav flex-column">
+        <!-- ANALYTICS -->
+        <li><span class="sidebar-section-label">Analytics</span></li>
+
         <li class="nav-item">
-          <a
-            class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
-            href="{% url 'dashboard' %}"
-          >
+          <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+             href="{% url 'dashboard' %}">
             <i class="fas fa-chart-line"></i>
             <span>Dashboard</span>
           </a>
         </li>
 
+        <!-- INVENTARIO -->
+        <li><span class="sidebar-section-label">Inventario</span></li>
+
         <li class="nav-item">
-          <a
-            class="nav-link {% if request.resolver_match.url_name == 'registro' %}active{% endif %}"
-            href="{% url 'registro' %}"
-          >
-            <i class="fas fa-box-open"></i>
-            <span>Agregar Productos</span>
+          <a class="nav-link {% if request.resolver_match.url_name == 'control_productos' %}active{% endif %}"
+             href="{% url 'control_productos' %}">
+            <!-- Custom diamond inventory icon -->
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 3h12l4 6-10 13L2 9z"/>
+              <path d="M2 9h20M6 3l4 6 2-6 2 6 4-6"/>
+            </svg>
+            <span>Inventario de Diamantes</span>
+          </a>
+        </li>
+
+        <!-- VENTAS -->
+        <li><span class="sidebar-section-label">Ventas</span></li>
+
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'solicitudes_ordenes' %}active{% endif %}"
+             href="{% url 'solicitudes_ordenes' %}">
+            <i class="fas fa-file-invoice"></i>
+            <span>Órdenes de Compra</span>
           </a>
         </li>
 
         <li class="nav-item">
-          <a
-            class="nav-link {% if request.resolver_match.url_name == 'control_productos' %}active{% endif %}"
-            href="{% url 'control_productos' %}"
-          >
-            <i class="fas fa-tags"></i>
-            <span>Gestión de Productos</span>
+          <a class="nav-link {% if request.resolver_match.url_name == 'afiliados' %}active{% endif %}"
+             href="{% url 'afiliados' %}">
+            <i class="fas fa-handshake"></i>
+            <span>Red de Afiliados</span>
           </a>
         </li>
+
+        <!-- ADMIN -->
+        <li><span class="sidebar-section-label">Administración</span></li>
 
         <li class="nav-item">
-          <a
-            class="nav-link {% if request.resolver_match.url_name == 'solicitudes_ordenes' %}active{% endif %}"
-            href="{% url 'solicitudes_ordenes' %}"
-          >
-            <i class="fas fa-file-lines"></i>
-            <span>Órdenes</span>
-          </a>
-
-        </li>
-                <li class="nav-item">
-          <a
-            class="nav-link {% if request.resolver_match.url_name == 'configuracion_whatsapp' %}active{% endif %}"
-            href="{% url 'configuracion_whatsapp' %}"
-          >
-            <i class="fab fa-whatsapp"></i>
-            <span>Config WhatsApp</span>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a
-            class="nav-link {% if request.resolver_match.url_name == 'usuarios' %}active{% endif %}"
-            href="{% url 'usuarios' %}"
-          >
-            <i class="fa-solid fa-user"></i>
+          <a class="nav-link {% if request.resolver_match.url_name == 'usuarios' %}active{% endif %}"
+             href="{% url 'usuarios' %}">
+            <i class="fas fa-user-shield"></i>
             <span>Usuarios</span>
           </a>
         </li>
+
         <li class="nav-item">
-          <a
-            class="nav-link {% if request.resolver_match.url_name == 'afiliados' %}active{% endif %}"
-            href="{% url 'afiliados' %}"
-          >
-            <i class="fas fa-user-tag"></i>
-            <span>Afiliados</span>
+          <a class="nav-link {% if request.resolver_match.url_name == 'configuracion_whatsapp' %}active{% endif %}"
+             href="{% url 'configuracion_whatsapp' %}">
+            <i class="fas fa-sliders"></i>
+            <span>Configuración API</span>
           </a>
         </li>
       </ul>
+
+      <!-- Sidebar footer: brand tagline -->
+      <div style="padding: 20px 16px; margin-top: auto; border-top: 1px solid var(--brand-border);">
+        <p style="font-size: 10px; color: var(--text-muted); text-align: center; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.6;">
+          ◇ &nbsp;B2B Certified Diamonds&nbsp; ◇<br>
+          <span style="font-family: 'Cormorant Garamond', serif; font-size: 12px; font-style: italic; letter-spacing: 0.05em; color: var(--silver-500);">Universal Diamond</span>
+        </p>
+      </div>
+
     </aside>
 
-    <!-- OVERLAY PARA MÓVIL -->
-    <div
-      class="sidebar-overlay"
-      id="sidebarOverlay"
-      style="display: none"
-    ></div>
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" style="display:none;"></div>
 
-    <!-- 
-      CONTENIDO PRINCIPAL 
-      Añadimos 'd-flex flex-column' para manejar el footer pegajoso 
-      y movimos el footer ADENTRO de esta etiqueta.
-    -->
+    <!-- ╔══ CONTENT ═══════════════════════════════════════════╗ -->
     <main class="content-area d-flex flex-column" id="contentArea">
-      <!-- Wrapper del contenido (crece para ocupar espacio) -->
       <div class="flex-grow-1">
-        <!-- Mensajes -->
-        {% if messages %} 
-          {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mt-2" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          {% endfor %} 
+
+        <!-- Alert Messages -->
+        {% if messages %}
+          <div style="padding: 16px 28px 0;">
+            {% for message in messages %}
+              <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                {% if message.tags == 'success' %}<i class="fas fa-check-circle me-2"></i>{% endif %}
+                {% if message.tags == 'error' or message.tags == 'danger' %}<i class="fas fa-exclamation-triangle me-2"></i>{% endif %}
+                {% if message.tags == 'warning' %}<i class="fas fa-exclamation-circle me-2"></i>{% endif %}
+                {% if message.tags == 'info' %}<i class="fas fa-info-circle me-2"></i>{% endif %}
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+              </div>
+            {% endfor %}
+          </div>
         {% endif %}
 
-        <!-- Contenido dinámico -->
+        <!-- Dynamic Content -->
         <div class="fade-in">{% block content %}{% endblock %}</div>
       </div>
-      <!-- Fin del flex-grow-1 -->
-
-      <!-- FOOTER AHORA DENTRO DEL MAIN AREA -->
-      {% comment %}
-      <footer class="footer mt-4">
-        <div class="container-fluid">
-          <!-- container-fluid para que se alinee con el contenido -->
-          <div
-            class="footer-content d-flex justify-content-between align-items-center"
-          >
-            <div class="d-flex align-items-center gap-3">
-              <a
-                href="{% url 'index' %}"
-                class="footer-logo text-decoration-none text-muted fw-bold"
-              >
-                <i class="fas fa-flask-vial me-1"></i> 
-              </a>
-              <span class="text-muted small"
-                >&copy; {{ now|date:"Y" }} Todos los derechos reservados.</span
-              >
-            </div>
-          </div>
-        </div>
-      </footer>
-      {% endcomment %}
     </main>
 
-    <!-- Scripts -->
+    <!-- ╔══ SCRIPTS ═══════════════════════════════════════════╗ -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        const sidebar = document.getElementById("sidebar");
-        const contentArea = document.getElementById("contentArea");
-        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-        const sidebarOverlay = document.getElementById("sidebarOverlay");
+        const sidebar      = document.getElementById("sidebar");
+        const contentArea  = document.getElementById("contentArea");
+        const menuBtn      = document.getElementById("mobileMenuBtn");
+        const overlay      = document.getElementById("sidebarOverlay");
 
-        // Menú móvil
-        mobileMenuBtn.addEventListener("click", function () {
+        // ── Mobile menu toggle ──────────────────────────────
+        menuBtn.addEventListener("click", function () {
           sidebar.classList.toggle("sidebar-mobile-open");
-          sidebarOverlay.style.display = sidebar.classList.contains(
-            "sidebar-mobile-open"
-          )
-            ? "block"
-            : "none";
+          overlay.style.display = sidebar.classList.contains("sidebar-mobile-open") ? "block" : "none";
         });
 
-        // Overlay para cerrar menú móvil
-        sidebarOverlay.addEventListener("click", function () {
+        overlay.addEventListener("click", function () {
           sidebar.classList.remove("sidebar-mobile-open");
-          sidebarOverlay.style.display = "none";
+          overlay.style.display = "none";
         });
 
-        // Colapsar/expandir sidebar en desktop
-        let isSidebarCollapsed =
-          localStorage.getItem("sidebarCollapsed") === "true";
-
-        function toggleSidebar() {
-          isSidebarCollapsed = !isSidebarCollapsed;
-          sidebar.classList.toggle("sidebar-collapsed", isSidebarCollapsed);
-          contentArea.classList.toggle("content-expanded", isSidebarCollapsed);
-          localStorage.setItem("sidebarCollapsed", isSidebarCollapsed);
+        // ── Desktop collapse (double-click sidebar header) ──
+        let collapsed = localStorage.getItem("sidebarCollapsed") === "true";
+        function applyCollapse() {
+          sidebar.classList.toggle("sidebar-collapsed", collapsed);
+          document.body.classList.toggle("sidebar-collapsed", collapsed);
+          contentArea.classList.toggle("content-expanded", collapsed);
         }
+        applyCollapse();
 
-        // Ejemplo de colapso con doble click en el header del sidebar
-        document
-          .querySelector(".sidebar-header")
-          .addEventListener("dblclick", toggleSidebar);
+        document.querySelector(".sidebar-header").addEventListener("dblclick", function () {
+          collapsed = !collapsed;
+          localStorage.setItem("sidebarCollapsed", collapsed);
+          applyCollapse();
+        });
 
-        // Mejorar experiencia en móviles
-        if (window.innerWidth <= 992) {
-          sidebar.classList.remove("sidebar-collapsed");
-          contentArea.classList.remove("content-expanded");
+        // ── Live clock ──────────────────────────────────────
+        function updateClock() {
+          const now = new Date();
+          const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+          const date = now.toLocaleDateString('es-VE', opts);
+          const time = now.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const el = document.getElementById("reloj-fecha");
+          if (el) el.textContent = date + "  —  " + time;
         }
+        updateClock();
+        setInterval(updateClock, 1000);
 
-        // Animación Fade In
-        const observerOptions = {
-          threshold: 0.1,
-          rootMargin: "0px 0px -50px 0px",
-        };
-
-        const observer = new IntersectionObserver(function (entries) {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.style.opacity = "1";
-              entry.target.style.transform = "translateY(0)";
-            }
-          });
-        }, observerOptions);
-
-        document.querySelectorAll(".fade-in").forEach((el) => {
-          el.style.opacity = "0";
-          el.style.transform = "translateY(20px)";
-          el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
-          observer.observe(el);
+        // ── Reset mobile on resize ──────────────────────────
+        window.addEventListener("resize", function () {
+          if (window.innerWidth > 992) {
+            sidebar.classList.remove("sidebar-mobile-open");
+            overlay.style.display = "none";
+          }
         });
       });
     </script>
 
-    {% block extra_scripts %} {% endblock extra_scripts %} {% block modals %} {% endblock modals %}
-   
+    {% block extra_scripts %}{% endblock %}
+    {% block modals %}{% endblock %}
+
   </body>
 </html>

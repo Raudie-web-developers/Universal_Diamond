@@ -1,7 +1,13 @@
 {% extends 'base_index.html' %}
 {% load static %}
 
-{% block title %}{{ producto.nombre }} | Universal Gold{% endblock %}
+{% block title %}
+  {% if diamond %}
+    Diamante {{ diamond.carats }} ct {{ diamond.shape }} | Universal Diamond
+  {% else %}
+    {{ producto.nombre }} | Universal Diamond
+  {% endif %}
+{% endblock %}
 
 {% block content %}
 
@@ -9,166 +15,139 @@
 <div class="product-breadcrumb-bar">
   <div class="container">
     <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="{% url 'tienda' %}">Catálogo</a>
-        </li>
-        {% with cat_principal=producto.categorias_hoja|first %}
-          {% if cat_principal %}
-            {% include "includes/breadcrumb_items.html" with cat=cat_principal %}
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tienda' %}">Buscador de Diamantes</a></li>
+        <li class="breadcrumb-item active">
+          {% if diamond %}
+            {{ diamond.carats }} ct {{ diamond.shape }} ({{ diamond.color }}/{{ diamond.clarity }})
+          {% else %}
+            {{ producto.nombre }}
           {% endif %}
-        {% endwith %}
-        <li class="breadcrumb-item active">{{ producto.nombre }}</li>
+        </li>
       </ol>
     </nav>
   </div>
 </div>
 
+<!-- ─── DIAMOND DETAIL SECTION ────────────────────────────── -->
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5">
 
-<!-- ─── PRODUCT DETAIL ────────────────────────────────────── -->
-<section class="product-detail-section">
-  <div class="product-detail-wrap">
+      <!-- Left Column: 360 Media / Images -->
+      <div class="col-lg-6">
+        <div class="diamond-360-container mb-3 shadow-sm bg-light rounded-3 d-flex align-items-center justify-content-center overflow-hidden">
+          {% if diamond.imagen_display_url %}
+            <img src="{{ diamond.imagen_display_url }}" alt="Diamante {{ diamond.carats }} ct {{ diamond.shape }}" class="w-100 h-100 object-fit-contain p-3">
+          {% elif diamond.image %}
+            <img src="{{ diamond.image }}" alt="Diamante {{ diamond.carats }} ct {{ diamond.shape }}" class="w-100 h-100 object-fit-contain p-3">
+          {% else %}
+            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted p-4">
+              <i class="fas fa-gem display-3 mb-3 text-gold-dim opacity-75"></i>
+              <h5 class="fw-bold text-dark mb-1">{{ diamond.shape }}</h5>
+              <span class="small text-muted">{{ diamond.carats }} ct &bull; Color {{ diamond.color }} &bull; {{ diamond.clarity }}</span>
+            </div>
+          {% endif %}
+        </div>
 
-    <!-- Gallery -->
-    <div class="product-detail-gallery">
-      <div id="carouselProducto" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-          {% if imagenes %}
-            {% for img in imagenes %}
-            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-              {% if img.imagen %}
-                <img src="{{ img.imagen.url }}" alt="{{ producto.nombre }}">
-              {% else %}
-                <img src="{{ img.url }}" alt="{{ producto.nombre }}">
+        <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+          {% if diamond.cert_pdf or diamond.pdf_url %}
+            <a href="{{ diamond.cert_pdf|default:diamond.pdf_url }}" target="_blank" rel="noopener" class="btn btn-outline-dark btn-sm rounded-pill">
+              <i class="fas fa-file-pdf text-danger me-2"></i>Ver Certificado Oficial (PDF)
+            </a>
+          {% endif %}
+          {% if diamond.v360_url or diamond.video_url %}
+            <a href="{{ diamond.v360_url|default:diamond.video_url }}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm rounded-pill">
+              <i class="fas fa-external-link-alt me-1"></i>Abrir Visor 360° Externo
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Right Column: Specifications & Order CTA -->
+      <div class="col-lg-6">
+        <div class="ps-lg-3">
+          {% if diamond %}
+            <div class="mb-2">
+              <span class="badge {% if diamond.lab == 'GIA' %}badge-lab-gia{% else %}badge-lab-igi{% endif %} me-2">
+                {{ diamond.lab }} Certified
+              </span>
+              {% if diamond.cert_number %}
+              <span class="badge badge-diamond-spec">Certificado #: {{ diamond.cert_number }}</span>
               {% endif %}
             </div>
-            {% endfor %}
-          {% else %}
-            <div class="carousel-item active">
-              <img src="{% static 'images/default_event.jpg' %}" alt="{{ producto.nombre }}">
+
+            <h1 class="display-5 font-display mb-3">
+              Diamante {{ diamond.carats }} ct {{ diamond.shape }}
+            </h1>
+
+            <div class="mb-4">
+              <span class="text-muted small d-block text-uppercase">Precio Final USD</span>
+              <span class="price-tag-large">${{ diamond.precio|floatformat:2 }}</span>
             </div>
+
+            <!-- Add to Order Form -->
+            <form method="post" action="{% url 'orden_add' %}" class="mb-4">
+              {% csrf_token %}
+              <input type="hidden" name="diamond_id" value="{{ diamond.id }}">
+              <div class="d-flex align-items-center gap-3">
+                <div class="qty-wrap mb-0" style="width: 110px;">
+                  <input type="number" min="1" name="cantidad" value="1" class="form-control text-center" readonly>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg flex-grow-1 py-3">
+                  <i class="fas fa-shopping-bag me-2"></i>Añadir a mi Orden de Diamantes
+                </button>
+              </div>
+            </form>
+
+            <!-- Specifications Table -->
+            <h4 class="font-display border-bottom pb-2 mt-4">Especificaciones del Diamante</h4>
+            <table class="specs-table">
+              <tbody>
+                {% if diamond.shape %}<tr><th>Forma (Shape)</th><td>{{ diamond.shape }}</td></tr>{% endif %}
+                {% if diamond.carats %}<tr><th>Peso (Quilates / Carats)</th><td>{{ diamond.carats }} ct</td></tr>{% endif %}
+                {% if diamond.color %}<tr><th>Color</th><td>Grade {{ diamond.color }}</td></tr>{% endif %}
+                {% if diamond.clarity %}<tr><th>Claridad</th><td>{{ diamond.clarity }}</td></tr>{% endif %}
+                {% if diamond.cut and diamond.cut != '-' %}<tr><th>Corte (Cut)</th><td>{{ diamond.cut }}</td></tr>{% endif %}
+                {% if diamond.polish and diamond.polish != '-' %}<tr><th>Pulido (Polish)</th><td>{{ diamond.polish }}</td></tr>{% endif %}
+                {% if diamond.symmetry and diamond.symmetry != '-' %}<tr><th>Simetría</th><td>{{ diamond.symmetry }}</td></tr>{% endif %}
+                {% if diamond.lab %}<tr><th>Laboratorio</th><td>{{ diamond.lab }}</td></tr>{% endif %}
+                {% if diamond.cert_number %}<tr><th>Nº Certificado</th><td>{{ diamond.cert_number }}</td></tr>{% endif %}
+              </tbody>
+            </table>
+
+          {% else %}
+            <!-- Traditional Product View -->
+            <h1 class="display-5 font-display mb-3">{{ producto.nombre }}</h1>
+            <span class="price-tag-large mb-3 d-block">${{ producto.precio }}</span>
+            <p class="lead text-muted mb-4">{{ producto.descripcion }}</p>
+
+            <form method="post" action="{% url 'orden_add' %}">
+              {% csrf_token %}
+              <input type="hidden" name="product_id" value="{{ producto.id }}">
+              <button type="submit" class="btn btn-primary btn-lg w-100 py-3">
+                <i class="fas fa-shopping-bag me-2"></i>Agregar al Carrito
+              </button>
+            </form>
           {% endif %}
-        </div>
 
-        {% if imagenes|length > 1 %}
-        <button class="carousel-btn carousel-btn-prev"
-                type="button"
-                data-bs-target="#carouselProducto"
-                data-bs-slide="prev">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="carousel-btn carousel-btn-next"
-                type="button"
-                data-bs-target="#carouselProducto"
-                data-bs-slide="next">
-          <i class="fas fa-chevron-right"></i>
-        </button>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- Info -->
-    <div class="product-detail-info">
-
-      <div class="product-badges">
-        {% for cat in producto.categorias_hoja %}
-          {% if not cat.es_subcategoria %}
-          <span class="badge-gold">
-            {% if cat.icono %}
-              <img src="{{ cat.icono.url }}" alt="icono" style="width:24px;height:24px;margin-right:0.3em;vertical-align:middle;object-fit:contain;border-radius:50%;">
-            {% endif %}
-            {{ cat.nombre }}
-          </span>
-          {% endif %}
-        {% endfor %}
-        {% if producto.agotado %}
-          <span class="badge-sold-out">Agotado</span>
-        {% else %}
-          <span class="badge-available">Disponible</span>
-        {% endif %}
-      </div>
-
-      <h1 class="product-name">{{ producto.nombre }}</h1>
-      <div class="gold-rule"></div>
-
-
-      {% if precios_por_peso and precios_por_peso|length > 0 %}
-      <div class="product-price-wrap mb-2" id="precioPesoWrap">
-        <span class="product-price-label">Elige un precio por peso:</span>
-        <ul class="list-unstyled mt-2 mb-0" id="precioPesoList">
-          {% for p in precios_por_peso %}
-            <li class="precio-peso-option"
-                data-id="{{ p.id }}"
-                data-precio="{{ p.precio|floatformat:2 }}"
-                data-peso="{{ p.peso|floatformat:2 }}">
-              <span class="precio-peso-radio"><i class="fas fa-circle"></i></span>
-              <span class="fw-bold">{{ p.peso|floatformat:2 }}g</span>
-              <span class="text-success">${{ p.precio|floatformat:2 }}</span>
-              <span class="precio-peso-check"><i class="fas fa-check"></i></span>
-            </li>
-          {% endfor %}
-        </ul>
-        <div id="precioPesoAlert" class="precio-peso-alert" style="display:none;">
-          <i class="fas fa-exclamation-triangle"></i>
-          <span>Debes seleccionar un precio por peso antes de agregar al carrito.</span>
-        </div>
-      </div>
-      {% else %}
-      <div class="product-price-wrap">
-        <span class="product-price">${{ producto.precio }}</span>
-        <span class="product-price-label">Precio unitario</span>
-      </div>
-      {% endif %}
-
-      {% if producto.descripcion %}
-      <div class="product-description">
-        <p>{{ producto.descripcion|linebreaksbr }}</p>
-      </div>
-      {% endif %}
-
-      <!-- Add to cart -->
-      <form method="post" action="{% url 'orden_add' %}" id="addToCartForm">
-        {% csrf_token %}
-        <input type="hidden" name="product_id" value="{{ producto.id }}">
-        {% if precios_por_peso and precios_por_peso|length > 0 %}
-        <input type="hidden" name="precio_peso_id"      id="inputPrecioPesoId"      value="">
-        <input type="hidden" name="precio_seleccionado" id="inputPrecioSeleccionado" value="">
-        <input type="hidden" name="peso_seleccionado"   id="inputPesoSeleccionado"   value="">
-        {% endif %}
-
-        <div class="qty-wrap">
-          <label class="qty-label">Cantidad</label>
-          <div class="qty-stepper">
-            <button type="button" onclick="this.parentNode.querySelector('input').stepDown()">−</button>
-            <input type="number" min="1" name="cantidad" value="1">
-            <button type="button" onclick="this.parentNode.querySelector('input').stepUp()">+</button>
+          <!-- Trust signals -->
+          <div class="row text-center g-3 mt-4 pt-3 border-top">
+            <div class="col-4">
+              <i class="fas fa-shield-alt fs-4 text-gold-dim mb-1 d-block"></i>
+              <span class="small text-muted">100% Auténtico</span>
+            </div>
+            <div class="col-4">
+              <i class="fas fa-truck fs-4 text-gold-dim mb-1 d-block"></i>
+              <span class="small text-muted">Envío Blindado</span>
+            </div>
+            <div class="col-4">
+              <i class="fab fa-whatsapp fs-4 text-gold-dim mb-1 d-block"></i>
+              <span class="small text-muted">Asesoría Directa</span>
+            </div>
           </div>
-        </div>
 
-        <button type="submit" class="btn btn-primary w-100 mt-3" id="btnAddCart"
-                {% if producto.agotado %}disabled style="cursor:not-allowed;"{% endif %}>
-          <i class="fas fa-shopping-bag"></i>
-          <span>{% if producto.agotado %}Producto Agotado{% else %}Agregar al Carrito{% endif %}</span>
-        </button>
-      </form>
-
-      <div class="text-center mt-3">
-        <a href="{% url 'orden' %}" class="cart-link">Ver mi carrito actual →</a>
-      </div>
-
-      <!-- Trust signals -->
-      <div class="trust-signals">
-        <div class="trust-item">
-          <i class="fas fa-shield-alt"></i>
-          <span>Compra 100% Segura</span>
-        </div>
-        <div class="trust-item">
-          <i class="fas fa-truck"></i>
-          <span>Envío Asegurado a Venezuela</span>
-        </div>
-        <div class="trust-item">
-          <i class="fab fa-whatsapp"></i>
-          <span>Soporte por WhatsApp</span>
         </div>
       </div>
 
@@ -176,173 +155,29 @@
   </div>
 </section>
 
-
-<!-- ─── RELATED PRODUCTS ──────────────────────────────────── -->
+<!-- ─── SUGGESTED DIAMONDS ────────────────────────────────── -->
 {% if sugeridos %}
-<section class="related-section">
+<section class="py-5 bg-light border-top">
   <div class="container">
-    <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
-      <div>
-        <span class="eyebrow">También te puede gustar</span>
-        <h3 class="related-title">Productos Relacionados</h3>
-      </div>
-      <a href="{% url 'tienda' %}" class="btn btn-ghost" style="font-size:0.6rem;">
-        <span>Ver todo</span>
-        <i class="fas fa-arrow-right"></i>
-      </a>
-    </div>
-
-   <!-- ─── FILTER & SEARCH BAR ─────────────────────────────── -->
-    <div style="margin: 1.5rem 0 2rem 0; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-      <div class="input-group" style="width: 400px; max-width: 100%;">
-        <span class="input-group-text"><i class="fas fa-search"></i></span>
-        <input type="text" id="relatedSearchInput" class="form-control"
-              placeholder="Buscar productos...">
-      </div>
-
-      {% if producto.categorias_hoja %}
-      <select id="relatedCatFilter" class="form-control" style="width: 180px; max-width: 100%; border-radius: 1.2rem;">
-        <option value="">Todas las categorías</option>
-        {% for cat in producto.categorias_hoja %}
-          <option value="{{ cat.nombre|lower }}">{{ cat.nombre }}</option>
-        {% endfor %}
-      </select>
-      {% endif %}
-
-      <p id="relatedNoResults" style="display:none; margin: 0; color:var(--gold-dim); font-size:0.85rem;">
-        No se encontraron productos.
-      </p>
-    </div>
-
-    <div class="product-grid">
-      {% for sugerido in sugeridos %}
-      <div class="product-card reveal">
-        <div class="product-card-image">
-          <a href="{% url 'productos' sugerido.id %}">
-            <div class="image-container">
-              {% if sugerido.portada %}
-                <img class="main-image" src="{{ sugerido.portada.url }}" alt="{{ sugerido.nombre }}">
-              {% elif sugerido.imagen %}
-                <img class="main-image" src="{{ sugerido.imagen.url }}" alt="{{ sugerido.nombre }}">
-              {% else %}
-                <img class="main-image" src="{% static 'images/default_event.jpg' %}" alt="{{ sugerido.nombre }}">
-              {% endif %}
-
-              {% with sugerido.imagenes.all|slice:"1:2" as second_image %}
-                {% if second_image %}
-                  <img class="hover-image" src="{{ second_image.0.imagen.url }}" alt="{{ sugerido.nombre }}">
-                {% endif %}
-              {% endwith %}
+    <h3 class="font-display mb-4 text-center">Otros Diamantes Sugeridos</h3>
+    <div class="row g-4">
+      {% for s in sugeridos %}
+      <div class="col-6 col-md-3">
+        <div class="card h-100 border-0 shadow-sm rounded-3">
+          <div class="card-body p-3">
+            <h6 class="card-title font-display">{{ s.carats }} ct {{ s.shape }}</h6>
+            <p class="small text-muted mb-2">Color {{ s.color }} | {{ s.clarity }} | {{ s.lab }}</p>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <strong class="text-gold-dim">${{ s.price|floatformat:2 }}</strong>
+              <a href="{% url 'productos' %}?diamond_id={{ s.id }}" class="btn btn-outline-dark btn-sm rounded-pill">Ver</a>
             </div>
-          </a>
-          <div class="product-card-status">
-            {% if sugerido.agotado %}
-              <span class="badge-sold-out">Agotado</span>
-            {% else %}
-              <span class="badge-available">Disponible</span>
-            {% endif %}
           </div>
-        </div>
-        <div class="product-card-body">
-          {% with sugerido.categorias.all|first as cat %}
-            {% if cat %}
-              <div class="product-card-cat">
-                {% if cat.icono %}
-                  <img src="{{ cat.icono.url }}" alt="icono" style="width:20px;height:20px;margin-right:0.3em;vertical-align:middle;object-fit:contain;border-radius:50%;">
-                {% endif %}
-                {{ cat.nombre }}
-              </div>
-            {% endif %}
-          {% endwith %}
-          <div class="product-card-name">
-            <a href="{% url 'productos' sugerido.id %}">{{ sugerido.nombre }}</a>
-          </div>
-          <div class="product-card-price">${{ sugerido.precio }}</div>
         </div>
       </div>
       {% endfor %}
     </div>
-
   </div>
 </section>
 {% endif %}
 
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-(function () {
-  var list    = document.getElementById('precioPesoList');
-  var alertEl = document.getElementById('precioPesoAlert');
-  var form    = document.getElementById('addToCartForm');
-
-  if (!list || !form) return;
-
-  var inputId     = document.getElementById('inputPrecioPesoId');
-  var inputPrecio = document.getElementById('inputPrecioSeleccionado');
-  var inputPeso   = document.getElementById('inputPesoSeleccionado');
-
-  // ── Selección de fila ─────────────────────────────────────
-  list.querySelectorAll('.precio-peso-option').forEach(function (li) {
-    li.addEventListener('click', function () {
-      list.querySelectorAll('.precio-peso-option').forEach(function (el) {
-        el.classList.remove('selected');
-      });
-      li.classList.add('selected');
-
-      inputId.value     = li.dataset.id     || '';
-      inputPrecio.value = li.dataset.precio || '';
-      inputPeso.value   = li.dataset.peso   || '';
-
-      alertEl.style.display = 'none';
-    });
-  });
-
-  // ── Validación al enviar ───────────────────────────────────
-  form.addEventListener('submit', function (e) {
-    if (!inputPrecio.value) {
-      e.preventDefault();
-      alertEl.style.display = 'flex';
-      list.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      list.classList.add('shake');
-      setTimeout(function () { list.classList.remove('shake'); }, 600);
-    }
-  });
-})();
-
-// ── Filtro en tiempo real de productos relacionados ──────────
-(function () {
-  var searchInput = document.getElementById('relatedSearchInput');
-  var catFilter   = document.getElementById('relatedCatFilter');
-  var noResults   = document.getElementById('relatedNoResults');
-
-  if (!searchInput) return;
-
-  function filterCards() {
-    var query = searchInput.value.toLowerCase().trim();
-    var cat   = catFilter ? catFilter.value.toLowerCase() : '';
-
-    var cards = document.querySelectorAll('.related-section .product-card');
-    var visible = 0;
-
-    cards.forEach(function (card) {
-      var name    = (card.querySelector('.product-card-name')  ? card.querySelector('.product-card-name').textContent  : '').toLowerCase();
-      var catText = (card.querySelector('.product-card-cat')   ? card.querySelector('.product-card-cat').textContent   : '').toLowerCase();
-
-      var matchQ   = !query || name.includes(query);
-      var matchCat = !cat   || catText.includes(cat);
-
-      card.style.display = (matchQ && matchCat) ? '' : 'none';
-      if (matchQ && matchCat) visible++;
-    });
-
-    if (noResults) {
-      noResults.style.display = visible === 0 ? 'block' : 'none';
-    }
-  }
-
-  searchInput.addEventListener('input', filterCards);
-  if (catFilter) catFilter.addEventListener('change', filterCards);
-})();
-</script>
 {% endblock %}
