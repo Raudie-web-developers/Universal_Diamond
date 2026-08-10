@@ -118,16 +118,25 @@ def tienda(request):
     # Query local DB Products for diamonds
     qs = Product.objects.filter(is_diamond=True)
 
+    selected_shapes = [s.upper() for s in selected_shapes if s]
     if selected_shapes:
-        qs = qs.filter(shape__in=[s.upper() for s in selected_shapes if s])
+        qs = qs.filter(shape__in=selected_shapes)
+
+    selected_colors = [c.upper() for c in selected_colors if c]
     if selected_colors:
-        qs = qs.filter(color__in=[c.upper() for c in selected_colors if c])
+        qs = qs.filter(color__in=selected_colors)
+
+    selected_clarities = [cl.upper() for cl in selected_clarities if cl]
     if selected_clarities:
-        qs = qs.filter(clarity__in=[cl.upper() for cl in selected_clarities if cl])
+        qs = qs.filter(clarity__in=selected_clarities)
+
+    selected_cuts = [ct.upper() for ct in selected_cuts if ct]
     if selected_cuts:
-        qs = qs.filter(cut__in=[ct.upper() for ct in selected_cuts if ct])
+        qs = qs.filter(cut__in=selected_cuts)
+
+    selected_labs = [l.upper() for l in selected_labs if l]
     if selected_labs:
-        qs = qs.filter(lab__in=[l.upper() for l in selected_labs if l])
+        qs = qs.filter(lab__in=selected_labs)
 
     if min_carats is not None:
         qs = qs.filter(carats__gte=min_carats)

@@ -14,7 +14,7 @@
       Nivoda Live B2B Inventory
     </span>
     <h1 class="page-header-title">Buscador de <em class="section-accent">Diamantes</em></h1>
-    <p class="page-header-sub">Explora nuestro inventario de diamantes naturales y lab-grown certificados por GIA, IGI y HRD.</p>
+    <p class="page-header-sub mx-auto">Explora nuestro inventario de diamantes naturales y lab-grown certificados por GIA, IGI y HRD.</p>
   </div>
 </div>
 
@@ -28,7 +28,11 @@
   {% endif %}
 
   <form method="GET" action="{% url 'tienda' %}" id="diamondFilterForm">
-    <div class="diamond-filter-bar mb-5">
+    <button class="btn-primary-luxury w-100 d-lg-none mb-4" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse" style="padding: 12px; font-size: 14px;">
+      <i class="fas fa-filter"></i> Mostrar / Ocultar Filtros
+    </button>
+    <div class="collapse d-lg-block" id="filterCollapse">
+      <div class="diamond-filter-bar mb-5">
 
       <!-- SHAPE SELECTOR -->
       <div class="mb-4">
@@ -90,7 +94,8 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M2 12h4M18 12h4"/></svg>
             Color
           </label>
-          <select name="color" class="form-select form-select-sm" multiple style="height:38px;">
+          <select name="color" class="form-select form-select-sm" style="height:38px;">
+            <option value="">Cualquier Color</option>
             {% for c in all_colors %}
               <option value="{{ c }}" {% if c in selected_colors %}selected{% endif %}>Color {{ c }}</option>
             {% endfor %}
@@ -102,7 +107,8 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             Claridad
           </label>
-          <select name="clarity" class="form-select form-select-sm" multiple style="height:38px;">
+          <select name="clarity" class="form-select form-select-sm" style="height:38px;">
+            <option value="">Cualquier Claridad</option>
             {% for cl in all_clarities %}
               <option value="{{ cl }}" {% if cl in selected_clarities %}selected{% endif %}>{{ cl }}</option>
             {% endfor %}
@@ -155,6 +161,7 @@
           </a>
         </div>
       </div>
+    </div>
     </div>
   </form>
 

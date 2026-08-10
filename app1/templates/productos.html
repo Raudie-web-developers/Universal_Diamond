@@ -37,31 +37,33 @@
 
       <!-- Left Column: 360 Media / Images -->
       <div class="col-lg-6">
-        <div class="diamond-360-container mb-3 shadow-sm bg-light rounded-3 d-flex align-items-center justify-content-center overflow-hidden">
-          {% if diamond.imagen_display_url %}
-            <img src="{{ diamond.imagen_display_url }}" alt="Diamante {{ diamond.carats }} ct {{ diamond.shape }}" class="w-100 h-100 object-fit-contain p-3">
-          {% elif diamond.image %}
-            <img src="{{ diamond.image }}" alt="Diamante {{ diamond.carats }} ct {{ diamond.shape }}" class="w-100 h-100 object-fit-contain p-3">
-          {% else %}
-            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted p-4">
-              <i class="fas fa-gem display-3 mb-3 text-gold-dim opacity-75"></i>
-              <h5 class="fw-bold text-dark mb-1">{{ diamond.shape }}</h5>
-              <span class="small text-muted">{{ diamond.carats }} ct &bull; Color {{ diamond.color }} &bull; {{ diamond.clarity }}</span>
-            </div>
-          {% endif %}
-        </div>
+        <div class="sticky-top" style="top: 120px; z-index: 10;">
+          <div class="diamond-360-container mb-3 bg-white border border-light rounded-4 d-flex align-items-center justify-content-center overflow-hidden" style="box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            {% if diamond.imagen_display_url %}
+              <img src="{{ diamond.imagen_display_url }}" alt="Diamante {{ diamond.carats }} ct {{ diamond.shape }}" class="w-100 h-100 object-fit-contain p-3">
+            {% elif diamond.image %}
+              <img src="{{ diamond.image }}" alt="Diamante {{ diamond.carats }} ct {{ diamond.shape }}" class="w-100 h-100 object-fit-contain p-3">
+            {% else %}
+              <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted p-4">
+                <i class="fas fa-gem display-3 mb-3 text-gold-dim opacity-75"></i>
+                <h5 class="fw-bold text-dark mb-1">{{ diamond.shape }}</h5>
+                <span class="small text-muted">{{ diamond.carats }} ct &bull; Color {{ diamond.color }} &bull; {{ diamond.clarity }}</span>
+              </div>
+            {% endif %}
+          </div>
 
-        <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
-          {% if diamond.cert_pdf or diamond.pdf_url %}
-            <a href="{{ diamond.cert_pdf|default:diamond.pdf_url }}" target="_blank" rel="noopener" class="btn btn-outline-dark btn-sm rounded-pill">
-              <i class="fas fa-file-pdf text-danger me-2"></i>Ver Certificado Oficial (PDF)
-            </a>
-          {% endif %}
-          {% if diamond.v360_url or diamond.video_url %}
-            <a href="{{ diamond.v360_url|default:diamond.video_url }}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm rounded-pill">
-              <i class="fas fa-external-link-alt me-1"></i>Abrir Visor 360° Externo
-            </a>
-          {% endif %}
+          <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+            {% if diamond.cert_pdf or diamond.pdf_url %}
+              <a href="{{ diamond.cert_pdf|default:diamond.pdf_url }}" target="_blank" rel="noopener" class="btn btn-outline-dark btn-sm rounded-pill">
+                <i class="fas fa-file-pdf text-danger me-2"></i>Ver Certificado Oficial (PDF)
+              </a>
+            {% endif %}
+            {% if diamond.v360_url or diamond.video_url %}
+              <a href="{{ diamond.v360_url|default:diamond.video_url }}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm rounded-pill">
+                <i class="fas fa-external-link-alt me-1"></i>Abrir Visor 360° Externo
+              </a>
+            {% endif %}
+          </div>
         </div>
       </div>
 
@@ -69,53 +71,60 @@
       <div class="col-lg-6">
         <div class="ps-lg-3">
           {% if diamond %}
-            <div class="mb-2">
-              <span class="badge {% if diamond.lab == 'GIA' %}badge-lab-gia{% else %}badge-lab-igi{% endif %} me-2">
-                {{ diamond.lab }} Certified
+            <div class="mb-3">
+              <span class="eyebrow d-inline-block me-3">
+                {% if diamond.lab == 'GIA' %}GIA{% else %}{{ diamond.lab }}{% endif %} Certified
               </span>
               {% if diamond.cert_number %}
-              <span class="badge badge-diamond-spec">Certificado #: {{ diamond.cert_number }}</span>
+              <span class="eyebrow d-inline-block text-muted">Certificado #: {{ diamond.cert_number }}</span>
               {% endif %}
             </div>
 
-            <h1 class="display-5 font-display mb-3">
-              Diamante {{ diamond.carats }} ct {{ diamond.shape }}
+            <h1 class="page-header-title mb-2" style="color: var(--ink) !important;">
+              Diamante {{ diamond.carats }} ct <em class="section-accent">{{ diamond.shape }}</em>
             </h1>
 
             <div class="mb-4">
-              <span class="text-muted small d-block text-uppercase">Precio Final USD</span>
-              <span class="price-tag-large">${{ diamond.precio|floatformat:2 }}</span>
+              <span class="eyebrow mb-1">Precio Final USD</span>
+              <div class="price-tag-luxury">${{ diamond.precio|floatformat:2 }}</div>
             </div>
 
             <!-- Add to Order Form -->
             <form method="post" action="{% url 'orden_add' %}" class="mb-4">
               {% csrf_token %}
               <input type="hidden" name="diamond_id" value="{{ diamond.id }}">
-              <div class="d-flex align-items-center gap-3">
-                <div class="qty-wrap mb-0" style="width: 110px;">
-                  <input type="number" min="1" name="cantidad" value="1" class="form-control text-center" readonly>
+              <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+                
+                <!-- Selector de Cantidad Premium -->
+                <div class="d-flex align-items-center" style="border: 1px solid var(--border-soft); background: var(--white); height: 48px; border-radius: 4px; overflow: hidden;">
+                  <button type="button" class="btn btn-link text-dark text-decoration-none px-3 border-0 h-100 rounded-0 d-flex align-items-center justify-content-center" onclick="let i=this.parentNode.querySelector('input'); i.value = Math.max(1, parseInt(i.value)-1);" style="box-shadow: none; background: #f8f9fa; width: 40px;">
+                    <i class="fas fa-minus" style="font-size: 0.7rem;"></i>
+                  </button>
+                  <input type="text" min="1" name="cantidad" value="1" class="form-control text-center border-0 bg-transparent p-0 h-100 rounded-0" readonly style="width: 50px; font-weight: 500; font-family: var(--font-body); box-shadow: none; font-size: 1rem;">
+                  <button type="button" class="btn btn-link text-dark text-decoration-none px-3 border-0 h-100 rounded-0 d-flex align-items-center justify-content-center" onclick="let i=this.parentNode.querySelector('input'); i.value = parseInt(i.value)+1;" style="box-shadow: none; background: #f8f9fa; width: 40px;">
+                    <i class="fas fa-plus" style="font-size: 0.7rem;"></i>
+                  </button>
                 </div>
-                <button type="submit" class="btn btn-primary btn-lg flex-grow-1 py-3">
-                  <i class="fas fa-shopping-bag me-2"></i>Añadir a mi Orden de Diamantes
+                
+                <button type="submit" class="btn btn-primary flex-grow-1" style="height: 48px; display: flex; align-items: center; justify-content: center; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;">
+                  <i class="fas fa-shopping-bag me-2"></i>Añadir a mi Orden
                 </button>
               </div>
             </form>
 
             <!-- Specifications Table -->
-            <h4 class="font-display border-bottom pb-2 mt-4">Especificaciones del Diamante</h4>
-            <table class="specs-table">
-              <tbody>
-                {% if diamond.shape %}<tr><th>Forma (Shape)</th><td>{{ diamond.shape }}</td></tr>{% endif %}
-                {% if diamond.carats %}<tr><th>Peso (Quilates / Carats)</th><td>{{ diamond.carats }} ct</td></tr>{% endif %}
-                {% if diamond.color %}<tr><th>Color</th><td>Grade {{ diamond.color }}</td></tr>{% endif %}
-                {% if diamond.clarity %}<tr><th>Claridad</th><td>{{ diamond.clarity }}</td></tr>{% endif %}
-                {% if diamond.cut and diamond.cut != '-' %}<tr><th>Corte (Cut)</th><td>{{ diamond.cut }}</td></tr>{% endif %}
-                {% if diamond.polish and diamond.polish != '-' %}<tr><th>Pulido (Polish)</th><td>{{ diamond.polish }}</td></tr>{% endif %}
-                {% if diamond.symmetry and diamond.symmetry != '-' %}<tr><th>Simetría</th><td>{{ diamond.symmetry }}</td></tr>{% endif %}
-                {% if diamond.lab %}<tr><th>Laboratorio</th><td>{{ diamond.lab }}</td></tr>{% endif %}
-                {% if diamond.cert_number %}<tr><th>Nº Certificado</th><td>{{ diamond.cert_number }}</td></tr>{% endif %}
-              </tbody>
-            </table>
+            <h4 class="eyebrow border-bottom pb-3 mt-5 mb-0">Especificaciones</h4>
+            <ul class="luxury-specs-list">
+              {% if diamond.shape %}<li><span class="luxury-specs-label">Forma</span><span class="luxury-specs-value">{{ diamond.shape }}</span></li>{% endif %}
+              {% if diamond.carats %}<li><span class="luxury-specs-label">Peso (Quilates)</span><span class="luxury-specs-value">{{ diamond.carats }} ct</span></li>{% endif %}
+              {% if diamond.color %}<li><span class="luxury-specs-label">Color</span><span class="luxury-specs-value">Grade {{ diamond.color }}</span></li>{% endif %}
+              {% if diamond.clarity %}<li><span class="luxury-specs-label">Claridad</span><span class="luxury-specs-value">{{ diamond.clarity }}</span></li>{% endif %}
+              {% if diamond.cut and diamond.cut != '-' %}<li><span class="luxury-specs-label">Corte</span><span class="luxury-specs-value">{{ diamond.cut }}</span></li>{% endif %}
+              {% if diamond.polish and diamond.polish != '-' %}<li><span class="luxury-specs-label">Pulido</span><span class="luxury-specs-value">{{ diamond.polish }}</span></li>{% endif %}
+              {% if diamond.symmetry and diamond.symmetry != '-' %}<li><span class="luxury-specs-label">Simetría</span><span class="luxury-specs-value">{{ diamond.symmetry }}</span></li>{% endif %}
+              {% if diamond.lab %}<li><span class="luxury-specs-label">Laboratorio</span><span class="luxury-specs-value">{{ diamond.lab }}</span></li>{% endif %}
+              {% if diamond.cert_number %}<li><span class="luxury-specs-label">Nº Certificado</span><span class="luxury-specs-value">{{ diamond.cert_number }}</span></li>{% endif %}
+            </ul>
 
           {% else %}
             <!-- Traditional Product View -->
@@ -133,18 +142,18 @@
           {% endif %}
 
           <!-- Trust signals -->
-          <div class="row text-center g-3 mt-4 pt-3 border-top">
+          <div class="row text-center g-3 mt-5 pt-4 border-top" style="border-color: var(--border-soft) !important;">
             <div class="col-4">
-              <i class="fas fa-shield-alt fs-4 text-gold-dim mb-1 d-block"></i>
-              <span class="small text-muted">100% Auténtico</span>
+              <i class="fas fa-shield-alt fs-4 text-gold mb-2 d-block"></i>
+              <span class="eyebrow" style="font-size: 0.6rem !important;">100% Auténtico</span>
             </div>
             <div class="col-4">
-              <i class="fas fa-truck fs-4 text-gold-dim mb-1 d-block"></i>
-              <span class="small text-muted">Envío Blindado</span>
+              <i class="fas fa-truck fs-4 text-gold mb-2 d-block"></i>
+              <span class="eyebrow" style="font-size: 0.6rem !important;">Envío Blindado</span>
             </div>
             <div class="col-4">
-              <i class="fab fa-whatsapp fs-4 text-gold-dim mb-1 d-block"></i>
-              <span class="small text-muted">Asesoría Directa</span>
+              <i class="fab fa-whatsapp fs-4 text-gold mb-2 d-block"></i>
+              <span class="eyebrow" style="font-size: 0.6rem !important;">Asesoría Directa</span>
             </div>
           </div>
 

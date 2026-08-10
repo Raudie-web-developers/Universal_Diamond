@@ -9,94 +9,38 @@
 <!-- ═══════════════════════════════════════════════════
      HERO
 ════════════════════════════════════════════════════ -->
-<section class="hero">
-  <!-- Ambient sparkles -->
-  <div class="hero-particles" aria-hidden="true">
+<section class="hero" id="heroSection">
+
+  <div class="hero-slides">
+    <div class="hero-slide active"
+         style="background-image:url('https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');"></div>
+  </div>
+
+  <!-- Ambient sparkles overlay -->
+  <div class="hero-particles" aria-hidden="true" style="z-index: 1;">
     <span class="particle p1">✦</span>
     <span class="particle p2">◆</span>
     <span class="particle p3">✦</span>
     <span class="particle p4">◇</span>
-    <span class="particle p5">✦</span>
-    <span class="particle p6">◆</span>
   </div>
 
-  <div class="container position-relative z-1">
-    <div class="row align-items-center g-5 py-5">
-      <div class="col-lg-6">
-        <span class="hero-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9z"/></svg>
-          Plataforma B2B de Diamantes Certificados
-        </span>
-        <h1 class="hero-title">
-          Diamantes de<br>
-          Pureza <em class="hero-title-accent">Excepcional</em>
-        </h1>
-        <p class="hero-subtitle">
-          Accede al inventario B2B global en vivo de diamantes naturales y lab-grown certificados por GIA, IGI y HRD con inspección HD y trazabilidad garantizada.
-        </p>
-        <div class="hero-actions">
-          <a href="{% url 'tienda' %}" class="btn-primary-luxury">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            Buscar Diamantes
-          </a>
-          <a href="#formas" class="btn-secondary-luxury">
-            Ver Cortes &amp; Formas
-          </a>
-        </div>
-      </div>
-
-      <div class="col-lg-6 text-center">
-        <div class="hero-card">
-          <!-- Diamond SVG showcase -->
-          <div class="hero-diamond-icon">
-            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <polygon points="50,8 88,30 88,70 50,92 12,70 12,30" fill="none" stroke="url(#hg1)" stroke-width="1.5"/>
-              <polygon points="50,8 70,30 50,55 30,30" fill="none" stroke="url(#hg1)" stroke-width="1" opacity="0.7"/>
-              <line x1="12" y1="30" x2="88" y2="30" stroke="url(#hg1)" stroke-width="1" opacity="0.5"/>
-              <line x1="30" y1="30" x2="50" y2="92" stroke="url(#hg1)" stroke-width="0.8" opacity="0.4"/>
-              <line x1="70" y1="30" x2="50" y2="92" stroke="url(#hg1)" stroke-width="0.8" opacity="0.4"/>
-              <line x1="50" y1="55" x2="12" y2="70" stroke="url(#hg1)" stroke-width="0.6" opacity="0.3"/>
-              <line x1="50" y1="55" x2="88" y2="70" stroke="url(#hg1)" stroke-width="0.6" opacity="0.3"/>
-              <!-- Sparkle glints -->
-              <circle cx="50" cy="8" r="2" fill="#E2E8F0" opacity="0.9"/>
-              <circle cx="88" cy="30" r="1.5" fill="#C4CCDA" opacity="0.7"/>
-              <circle cx="30" cy="30" r="1" fill="#C4CCDA" opacity="0.5"/>
-              <defs>
-                <linearGradient id="hg1" x1="12" y1="8" x2="88" y2="92" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#E2E8F0"/>
-                  <stop offset="50%" stop-color="#C4CCDA"/>
-                  <stop offset="100%" stop-color="#6B7A90"/>
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-          <h4 class="hero-card-title">Inventario Live Nivoda API</h4>
-          <p class="hero-card-sub">Precios B2B competitivos, verificación GIA en tiempo real y asistencia directa.</p>
-          <div class="hero-card-stats">
-            <div class="hero-stat">
-              <strong>GIA/IGI</strong>
-              <span>100% Certificados</span>
-            </div>
-            <div class="hero-stat-divider">◇</div>
-            <div class="hero-stat">
-              <strong>360°</strong>
-              <span>Inspección HD</span>
-            </div>
-            <div class="hero-stat-divider">◇</div>
-            <div class="hero-stat">
-              <strong>B2B</strong>
-              <span>Precios Mayoristas</span>
-            </div>
-          </div>
-        </div>
+  <div class="container h-100 position-relative z-2">
+    <div class="hero-content">
+      <span class="eyebrow hero-eyebrow">Plataforma B2B de Diamantes Certificados</span>
+      <h1>Diamantes de<br><em>Pureza Excepcional</em></h1>
+      <p>Accede al inventario global en vivo de diamantes naturales y lab-grown certificados por GIA, IGI y HRD con inspección HD.</p>
+      <div class="hero-btns">
+        <a href="{% url 'tienda' %}" class="btn btn-primary">
+          <span>Buscar Diamantes</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="#formas" class="btn btn-ghost">
+          <span>Ver Cortes &amp; Formas</span>
+        </a>
       </div>
     </div>
   </div>
 
-  <div class="hero-scroll-indicator">
-    <span>Explorar</span>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════
@@ -110,16 +54,55 @@
       <div class="section-divider"><span>◇</span></div>
     </div>
 
-    <div class="row g-3">
-      {% for item in shapes_grid %}
+    <div class="row g-3 justify-content-center">
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-        <a href="{% url 'tienda' %}?shape={{ item.code }}" class="shape-card">
-          <div class="shape-card-icon">{{ item.icon }}</div>
-          <div class="shape-card-name">{{ item.name }}</div>
-          <div class="shape-card-desc">{{ item.code }}</div>
+        <a href="{% url 'tienda' %}?shape=ROUND" class="shape-card">
+          <span class="shape-icon">
+            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="18" cy="18" r="13"/><polygon points="18,5 25,12 25,24 18,31 11,24 11,12" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.6"/></svg>
+          </span>
+          <span class="shape-label">Round</span>
         </a>
       </div>
-      {% endfor %}
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <a href="{% url 'tienda' %}?shape=OVAL" class="shape-card">
+          <span class="shape-icon">
+            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><ellipse cx="18" cy="18" rx="10" ry="14"/><polygon points="18,4 25,12 25,24 18,32 11,24 11,12" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.6"/></svg>
+          </span>
+          <span class="shape-label">Oval</span>
+        </a>
+      </div>
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <a href="{% url 'tienda' %}?shape=CUSHION" class="shape-card">
+          <span class="shape-icon">
+            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="6" y="6" width="24" height="24" rx="6"/><polygon points="18,6 30,14 30,22 18,30 6,22 6,14" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.6"/></svg>
+          </span>
+          <span class="shape-label">Cushion</span>
+        </a>
+      </div>
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <a href="{% url 'tienda' %}?shape=PRINCESS" class="shape-card">
+          <span class="shape-icon">
+            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="6" y="6" width="24" height="24"/><line x1="6" y1="6" x2="30" y2="30" stroke="currentColor" stroke-width="0.7" opacity="0.4"/><line x1="30" y1="6" x2="6" y2="30" stroke="currentColor" stroke-width="0.7" opacity="0.4"/></svg>
+          </span>
+          <span class="shape-label">Princess</span>
+        </a>
+      </div>
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <a href="{% url 'tienda' %}?shape=EMERALD" class="shape-card">
+          <span class="shape-icon">
+            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="5" y="9" width="26" height="18" rx="1"/><rect x="9" y="12" width="18" height="12" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.5"/></svg>
+          </span>
+          <span class="shape-label">Emerald</span>
+        </a>
+      </div>
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <a href="{% url 'tienda' %}?shape=PEAR" class="shape-card">
+          <span class="shape-icon">
+            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M18,4 C26,4 30,10 30,17 C30,25 24,32 18,32 C12,32 6,25 6,17 C6,10 10,4 18,4 Z"/></svg>
+          </span>
+          <span class="shape-label">Pear</span>
+        </a>
+      </div>
     </div>
   </div>
 </section>
