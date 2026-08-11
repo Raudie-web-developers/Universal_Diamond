@@ -8,21 +8,14 @@
 
 <!-- ═══════════════════════════════════════════════════
      HERO
-════════════════════════════════════════════════════ -->
+════════════════════════════════════════════════════  -->
 <section class="hero" id="heroSection">
 
   <div class="hero-slides">
     <div class="hero-slide active"
-         style="background-image:url('https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');"></div>
+         style="background-image:url({% static 'images/hero.webp' %});"></div>
   </div>
-
-  <!-- Ambient sparkles overlay -->
-  <div class="hero-particles" aria-hidden="true" style="z-index: 1;">
-    <span class="particle p1">✦</span>
-    <span class="particle p2">◆</span>
-    <span class="particle p3">✦</span>
-    <span class="particle p4">◇</span>
-  </div>
+ 
 
   <div class="container h-100 position-relative z-2">
     <div class="hero-content">
@@ -58,7 +51,7 @@
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <a href="{% url 'tienda' %}?shape=ROUND" class="shape-card">
           <span class="shape-icon">
-            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="18" cy="18" r="13"/><polygon points="18,5 25,12 25,24 18,31 11,24 11,12" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.6"/></svg>
+            <img src="{% static 'images/icon/icono_round.png' %}" alt="Round">
           </span>
           <span class="shape-label">Round</span>
         </a>
@@ -66,7 +59,7 @@
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <a href="{% url 'tienda' %}?shape=OVAL" class="shape-card">
           <span class="shape-icon">
-            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><ellipse cx="18" cy="18" rx="10" ry="14"/><polygon points="18,4 25,12 25,24 18,32 11,24 11,12" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.6"/></svg>
+            <img src="{% static 'images/icon/icono_oval.png' %}" alt="Oval">
           </span>
           <span class="shape-label">Oval</span>
         </a>
@@ -74,7 +67,7 @@
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <a href="{% url 'tienda' %}?shape=CUSHION" class="shape-card">
           <span class="shape-icon">
-            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="6" y="6" width="24" height="24" rx="6"/><polygon points="18,6 30,14 30,22 18,30 6,22 6,14" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.6"/></svg>
+            <img src="{% static 'images/icon/icono_cushion.png' %}" alt="Cushion">
           </span>
           <span class="shape-label">Cushion</span>
         </a>
@@ -82,7 +75,7 @@
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <a href="{% url 'tienda' %}?shape=PRINCESS" class="shape-card">
           <span class="shape-icon">
-            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="6" y="6" width="24" height="24"/><line x1="6" y1="6" x2="30" y2="30" stroke="currentColor" stroke-width="0.7" opacity="0.4"/><line x1="30" y1="6" x2="6" y2="30" stroke="currentColor" stroke-width="0.7" opacity="0.4"/></svg>
+            <img src="{% static 'images/icon/icono_princess.png' %}" alt="Princess">
           </span>
           <span class="shape-label">Princess</span>
         </a>
@@ -90,7 +83,7 @@
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <a href="{% url 'tienda' %}?shape=EMERALD" class="shape-card">
           <span class="shape-icon">
-            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="5" y="9" width="26" height="18" rx="1"/><rect x="9" y="12" width="18" height="12" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.5"/></svg>
+            <img src="{% static 'images/icon/icono_emerald.png' %}" alt="Emerald">
           </span>
           <span class="shape-label">Emerald</span>
         </a>
@@ -98,7 +91,8 @@
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <a href="{% url 'tienda' %}?shape=PEAR" class="shape-card">
           <span class="shape-icon">
-            <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M18,4 C26,4 30,10 30,17 C30,25 24,32 18,32 C12,32 6,25 6,17 C6,10 10,4 18,4 Z"/></svg>
+            <!-- Asumiendo que b753cd24... es la forma de Pear basada en los archivos -->
+            <img src="{% static 'images/icon/b753cd24-1068-4711-8678-2c60b501ba56.png' %}" alt="Pear">
           </span>
           <span class="shape-label">Pear</span>
         </a>
@@ -175,6 +169,46 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════
+     NOSOTROS (ABOUT)
+════════════════════════════════════════════════════ -->
+<section class="about-section border-bottom" id="nosotros" style="border-color: var(--border-soft) !important;">
+
+  <div class="about-visual">
+    <!-- Placeholder elegante de diamantes / joyería -->
+    <img src="{% static 'images/diamond.webp' %}" alt="Nosotros Universal Diamond">
+    <div class="about-visual-overlay"></div>
+    <div class="about-badge">
+      <strong>Est. 2024</strong>
+      <span>B2B Diamond Platform</span>
+    </div>
+  </div>
+
+  <div class="about-text">
+    <span class="eyebrow">Nuestra Historia</span>
+    <h2>Tradición y<br><em>Modernidad</em></h2>
+    <div class="gold-rule"></div>
+    <p>
+      En el corazón de Venezuela nace Universal Diamond, una plataforma de lujo que redefine la experiencia de adquirir y disfrutar diamantes naturales y cultivados. Más que un buscador, somos un universo donde la elegancia se fusiona con la frescura de lo contemporáneo; aquí, cada gema narra una historia de sofisticación, arte y absoluta exclusividad.
+    </p>
+
+    <div class="about-mv-grid">
+      <div class="about-mv-card">
+        <i class="fas fa-gem about-mv-icon"></i>
+        <h5>Misión</h5>
+        <p>Crear experiencias únicas a través de diamantes certificados que combinan calidad impecable, confianza y un ambiente exclusivo. No solo ofrecemos un producto, sino un estilo de vida sofisticado y memorable.</p>
+      </div>
+
+      <div class="about-mv-card">
+        <i class="fas fa-eye about-mv-icon"></i>
+        <h5>Visión</h5>
+        <p>Ser la plataforma joyera de referencia en Venezuela y Latinoamérica por nuestro enfoque innovador y experiencial. Nos posicionamos como un ícono de lujo moderno que transforma cada adquisición en una celebración del buen gusto y la autenticidad.</p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════
      CERTIFICATIONS / WHY US
 ════════════════════════════════════════════════════ -->
 <section class="cert-section py-6" id="certificaciones">
@@ -220,6 +254,112 @@
           </div>
           <h5 class="cert-card-title">Envío Asegurado &amp; Asesoría</h5>
           <p class="cert-card-desc">Logística protegida de punto a punto y asesoramiento personalizado para la compra y apartado de tus diamantes certificados.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     CONTACT & LOCATION
+════════════════════════════════════════════════════ -->
+<section class="contact-section" id="contacto">
+  <div class="container">
+    <div class="contact-grid reveal">
+
+      <div class="contact-info-panel">
+        <span class="eyebrow">Información de Contacto</span>
+        <h2>Hablemos de<br><em>tu próxima joya</em></h2>
+
+        <div class="contact-info-list">
+          <a href="https://wa.me/584123252838" target="_blank" rel="noopener" class="contact-info-item">
+            <div class="contact-info-icon"><i class="fab fa-whatsapp"></i></div>
+            <div class="contact-info-text">
+              <strong>WhatsApp</strong>
+              <span>+584123252838<br>Atención inmediata · Lun–Sáb</span>
+            </div>
+          </a>
+
+          <a href="mailto:info@universaldiamond.net" class="contact-info-item">
+            <div class="contact-info-icon"><i class="fas fa-envelope"></i></div>
+            <div class="contact-info-text">
+              <strong>Correo Electrónico</strong>
+              <span>info@universaldiamond.net<br>Respondemos en menos de 24 h</span>
+            </div>
+          </a>
+
+          <div class="contact-info-item">
+            <div class="contact-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="contact-info-text">
+              <strong>Oficina Comercial</strong>
+              <span>CC Tolón Fashion Mall, Piso 5, Local 5–05<br>Av. Principal Las Mercedes, Caracas</span>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="contact-info-icon"><i class="fas fa-clock"></i></div>
+            <div class="contact-info-text">
+              <strong>Horario de Atención</strong>
+              <span>Lunes – Sábado: 10:00 am – 8:00 pm<br>Domingos y días feriados: 11:00 am – 7:00 pm</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-social">
+          <a href="https://instagram.com/universalgold.ve" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.tiktok.com/@universalgold" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="https://wa.me/584123252838" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+
+      <div class="contact-map-panel">
+        <div class="contact-map-embed">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3923.5!2d-66.872!3d10.488!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zQ0MgVG9sw7NuIEZhc2hpb24gTWFsbA!5e0!3m2!1ses!2sve!4v1"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Ubicación Universal Diamond"
+          ></iframe>
+        </div>
+
+        <div class="contact-form-area">
+          <h4>Envíanos un <em>mensaje</em></h4>
+          <p class="form-subtitle">Cuéntanos qué buscas y te asesoramos sin compromiso.</p>
+
+          <form action="#" method="get" novalidate>
+            <div class="contact-form-row">
+              <div class="contact-field-group">
+                <label for="cf_nombre">Nombre</label>
+                <input type="text" id="cf_nombre" name="cf_nombre" placeholder="Tu nombre" required>
+              </div>
+              <div class="contact-field-group">
+                <label for="cf_telefono">Teléfono (opcional)</label>
+                <input type="tel" id="cf_telefono" name="cf_telefono" placeholder="+58 424 000 0000">
+              </div>
+            </div>
+
+            <div class="contact-field-group">
+              <label for="cf_correo">Correo Electrónico</label>
+              <input type="email" id="cf_correo" name="cf_correo" placeholder="tucorreo@email.com" required>
+            </div>
+
+            <div class="contact-field-group">
+              <label for="cf_mensaje">Mensaje</label>
+              <textarea id="cf_mensaje" name="cf_mensaje" placeholder="¿Qué diamante estás buscando? ¿Tienes alguna pregunta?" required></textarea>
+            </div>
+
+            <div class="contact-submit-row">
+              <button type="button" class="btn btn-primary" onclick="alert('Funcionalidad de contacto en desarrollo.');">
+                <span>Enviar Mensaje</span>
+                <i class="fas fa-arrow-right"></i>
+              </button>
+              <p class="contact-whatsapp-alt">
+                ¿Prefieres escribir directo?
+                <a href="https://wa.me/584123252838" target="_blank" rel="noopener">WhatsApp →</a>
+              </p>
+            </div>
+          </form>
         </div>
       </div>
     </div>

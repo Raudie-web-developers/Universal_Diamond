@@ -601,7 +601,7 @@ em.purple { color: var(--purple); }
 /* ── Misión & Visión ── */
 .about-mv-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1.25rem;
   margin-top: 2rem;
 }
@@ -1858,9 +1858,11 @@ a.contact-info-item:hover .contact-info-icon { background: rgba(184,150,46,0.18)
   align-items: center;
   justify-content: center;
 }
-.shape-card .shape-icon svg {
-  width: 42px;
-  height: 42px;
+.shape-card .shape-icon svg,
+.shape-card .shape-icon img {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
 }
 .shape-card .shape-label {
   font-family: var(--font-body);
