@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap');
 /* ═══════════════════════════════════════════════════════
    UNIVERSAL GOLD — Design System · Light Edition
    Cream & Ivory · Gold Constellations
@@ -1115,7 +1116,7 @@ em.purple { color: var(--purple); }
 
 /* ─── FORM CONTROLS ──────────────────────────────────── */
 .form-control, .form-select {
-  background: var(--cream) !important; border: 1px solid var(--border-dark) !important;
+  background-color: var(--cream) !important; border: 1px solid var(--border-dark) !important;
   color: var(--ink) !important; border-radius: 0 !important;
   font-family: var(--font-body) !important; font-size: 0.82rem !important;
   font-weight: 300 !important; padding: 0.7rem 1rem !important;
@@ -1257,7 +1258,7 @@ em.purple { color: var(--purple); }
 .contact-info-item:first-child { border-top: 1px solid var(--border-soft); }
 a.contact-info-item:hover { background: var(--gold-pale); margin: 0 -3.5rem; padding-left: 3.5rem; padding-right: 3.5rem; }
 
-.contact-info-icon { width: 38px; height: 38px; background: var(--gold-pale); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.95rem; color: var(--gold); flex-shrink: 0; transition: background 0.3s, color 0.3s; }
+.contact-info-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--white); border: 1px solid rgba(184,150,46,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--gold); flex-shrink: 0; transition: all 0.3s; box-shadow: 0 4px 10px rgba(184,150,46,0.1); }
 a.contact-info-item:hover .contact-info-icon { background: rgba(184,150,46,0.18); color: var(--gold-light); }
 
 .contact-info-text         { display: flex; flex-direction: column; gap: 0.2rem; }
@@ -1272,7 +1273,7 @@ a.contact-info-item:hover .contact-info-icon { background: rgba(184,150,46,0.18)
 .contact-map-embed  { position: relative; width: 100%; padding-bottom: 52%; background: var(--cream-2); overflow: hidden; border: 1px solid var(--border-soft); }
 .contact-map-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; filter: saturate(0.85) contrast(1.05); }
 
-.contact-form-area       { background: var(--white); border: 1px solid var(--border-soft); padding: 2.5rem; }
+.contact-form-area       { background: var(--white); border: 1px solid rgba(184,150,46,0.2); padding: 3rem; border-radius: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); }
 .contact-form-area h4    { font-family: var(--font-display); font-size: 1.55rem; font-weight: 300; color: var(--ink); margin-bottom: 0.4rem; }
 .contact-form-area h4 em { color: var(--gold); }
 .form-subtitle           { font-size: 0.8rem; color: var(--ink-muted); margin-bottom: 1.8rem; line-height: 1.7; }
@@ -1283,8 +1284,8 @@ a.contact-info-item:hover .contact-info-icon { background: rgba(184,150,46,0.18)
 .contact-field-group label { font-family: var(--font-body); font-size: 0.57rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 500; color: var(--gold); }
 .contact-field-group input,
 .contact-field-group textarea {
-  background: var(--cream) !important; border: 1px solid var(--border-dark) !important;
-  color: var(--ink) !important; border-radius: 0 !important;
+  background: var(--white) !important; border: 1px solid rgba(184,150,46,0.25) !important;
+  color: var(--ink) !important; border-radius: 4px !important;
   font-family: var(--font-body) !important; font-size: 0.88rem !important;
   font-weight: 300 !important; padding: 0.75rem 1rem !important;
   transition: border-color 0.3s, box-shadow 0.3s;
@@ -1602,19 +1603,26 @@ a.contact-info-item:hover .contact-info-icon { background: rgba(184,150,46,0.18)
   color: var(--gold);
 }
 
-/* Shape Selector Grid */
 .shape-selector-grid {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  flex-wrap: nowrap;
+  gap: 0.80rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.shape-selector-grid::-webkit-scrollbar {
+  display: none;
 }
 
 .shape-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: var(--cream);
+  gap: 0.25rem;
+  padding: 0.3rem 0.5rem;
+  background-color: var(--cream);
+  flex-shrink: 0;
   border: 1px solid var(--border-soft);
   border-radius: 8px;
   cursor: pointer;
@@ -1660,11 +1668,14 @@ a.contact-info-item:hover .contact-info-icon { background: rgba(184,150,46,0.18)
   color: var(--ink);
   font-weight: 600;
 }
+.shape-btn .shape-label {
+  font-size: 0.72rem;
+}
 
 /* Inputs & Selects */
 .diamond-filter-bar .form-control,
 .diamond-filter-bar .form-select {
-  background: var(--cream);
+  background-color: var(--cream);
   border: 1px solid var(--border-soft);
   color: var(--ink);
   font-family: var(--font-body);
@@ -1682,7 +1693,7 @@ a.contact-info-item:hover .contact-info-icon { background: rgba(184,150,46,0.18)
 .diamond-filter-bar .form-control:focus,
 .diamond-filter-bar .form-select:focus {
   border-color: var(--gold);
-  background: var(--white);
+  background-color: var(--white);
   outline: none;
   box-shadow: 0 0 0 3px var(--gold-pale);
 }
@@ -1782,18 +1793,19 @@ a.contact-info-item:hover .contact-info-icon { background: rgba(184,150,46,0.18)
   padding: 5rem 0 7rem 0;
 }
 .cert-card {
-  background: var(--cream);
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  padding: 2.5rem 2rem;
+  background: var(--white);
+  border: 1px solid rgba(184, 150, 46, 0.2);
+  border-radius: 4px;
+  padding: 3.5rem 2rem;
   height: 100%;
   transition: all 0.4s var(--ease-out);
   text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
 }
 .cert-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(28,24,16,0.04);
-  border-color: var(--gold-pale);
+  box-shadow: 0 15px 35px rgba(184, 150, 46, 0.08);
+  border-color: rgba(184, 150, 46, 0.5);
 }
 .cert-card-icon {
   display: inline-flex;
@@ -2020,4 +2032,154 @@ body, p, .cert-card-desc {
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--ink);
+}
+/* Luxury Pagination */
+.pagination {
+  gap: 0.5rem;
+}
+.luxury-page-link {
+  border-radius: 8px !important;
+  border: 1px solid var(--border-soft) !important;
+  background-color: var(--cream) !important;
+  color: var(--ink) !important;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.3s var(--ease-out) !important;
+}
+.luxury-page-link:hover {
+  background-color: var(--gold-pale) !important;
+  border-color: var(--gold) !important;
+}
+.page-item.disabled .current-page {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: var(--ink-muted) !important;
+  font-weight: 400;
+}
+
+/* Uniform Diamond Card Images */
+.diamond-card-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: var(--cream-1);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.diamond-card-media img.diamond-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+}
+
+/* Card Titles and Labels */
+.diamond-card-title, .diamond-card-title a {
+  font-family: var(--font-body) !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  margin-top: 12px !important;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
+}
+.diamond-card-lab {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: var(--white);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+/* Enhanced Hero Aesthetics */
+.hero-slide::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(28,24,16,0.95) 0%, rgba(28,24,16,0.5) 50%, rgba(28,24,16,0) 100%);
+  z-index: 1;
+}
+.hero-content h1 {
+  color: var(--white) !important;
+  background: none !important;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  font-size: clamp(2.5rem, 4vw, 3.5rem) !important;
+  line-height: 1.1 !important;
+  margin-bottom: 1.5rem !important;
+  font-family: var(--font-display) !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+.hero-content h1 em {
+  background: none !important;
+  color: var(--gold) !important;
+  font-family: inherit !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  font-size: 1em !important;
+  display: inline;
+  letter-spacing: 0 !important;
+  margin-top: 0;
+}
+.hero-eyebrow {
+  color: var(--cream) !important;
+  font-family: var(--font-body) !important;
+  letter-spacing: 0.4em !important;
+  font-size: 0.85rem !important;
+  font-weight: 300 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  text-transform: uppercase !important;
+  margin-top: 0 !important;
+  margin-bottom: 2rem !important;
+  display: block;
+}
+.hero-content p {
+  color: rgba(255,255,255,0.95) !important;
+  font-size: 1.05rem !important;
+  max-width: 480px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  margin-bottom: 2.5rem !important;
+  line-height: 1.6 !important;
+}
+.hero-btns .btn-primary {
+  background-color: var(--gold) !important;
+  color: var(--white) !important;
+  border: none !important;
+  padding: 1rem 2rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em;
+  transition: all 0.3s var(--ease-out);
+}
+.hero-btns .btn-primary:hover {
+  background-color: #d4a938 !important; /* Slightly brighter gold */
+  transform: translateY(-2px);
+}
+.hero-btns .btn-ghost {
+  border: 1px solid rgba(255,255,255,0.5) !important;
+  color: var(--white) !important;
+  padding: 1rem 2rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em;
+  transition: all 0.3s var(--ease-out);
+}
+.hero-btns .btn-ghost:hover {
+  background-color: rgba(255,255,255,0.1) !important;
+  border-color: var(--white) !important;
 }

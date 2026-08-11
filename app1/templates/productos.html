@@ -85,8 +85,7 @@
             </h1>
 
             <div class="mb-4">
-              <span class="eyebrow mb-1">Precio Final USD</span>
-              <div class="price-tag-luxury">${{ diamond.precio|floatformat:2 }}</div>
+              <!-- Precio Final USD hidden -->
             </div>
 
             <!-- Add to Order Form -->
@@ -177,7 +176,7 @@
             <h6 class="card-title font-display">{{ s.carats }} ct {{ s.shape }}</h6>
             <p class="small text-muted mb-2">Color {{ s.color }} | {{ s.clarity }} | {{ s.lab }}</p>
             <div class="d-flex justify-content-between align-items-center mt-2">
-              <strong class="text-gold-dim">${{ s.price|floatformat:2 }}</strong>
+              <!-- Price hidden -->
               <a href="{% url 'productos' %}?diamond_id={{ s.id }}" class="btn btn-outline-dark btn-sm rounded-pill">Ver</a>
             </div>
           </div>

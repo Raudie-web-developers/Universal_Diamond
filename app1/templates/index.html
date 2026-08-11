@@ -19,9 +19,9 @@
 
   <div class="container h-100 position-relative z-2">
     <div class="hero-content">
-      <span class="eyebrow hero-eyebrow">Plataforma B2B de Diamantes Certificados</span>
-      <h1>Diamantes de<br><em>Pureza Excepcional</em></h1>
-      <p>Accede al inventario global en vivo de diamantes naturales y lab-grown certificados por GIA, IGI y HRD con inspección HD.</p>
+      <h1>Diamantes de <em>Pureza Excepcional</em></h1>
+      <span class="eyebrow hero-eyebrow">Colección Exclusiva</span>
+      <p style="margin-bottom: 2.5rem;">Descubre nuestra selección global de diamantes naturales y lab-grown. Certificados por los institutos gemológicos más prestigiosos, con los más altos estándares de calidad.</p>
       <div class="hero-btns">
         <a href="{% url 'tienda' %}" class="btn btn-primary">
           <span>Buscar Diamantes</span>
@@ -91,8 +91,7 @@
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <a href="{% url 'tienda' %}?shape=PEAR" class="shape-card">
           <span class="shape-icon">
-            <!-- Asumiendo que b753cd24... es la forma de Pear basada en los archivos -->
-            <img src="{% static 'images/icon/b753cd24-1068-4711-8678-2c60b501ba56.png' %}" alt="Pear">
+            <img src="{% static 'images/icon/icono_peard.png' %}" alt="Pear">
           </span>
           <span class="shape-label">Pear</span>
         </a>
@@ -120,35 +119,38 @@
     <div class="row g-4">
       {% for dm in featured_diamonds %}
       <div class="col-6 col-md-4 col-lg-4">
-        <div class="diamond-card">
+        <div class="diamond-card position-relative">
           <div class="diamond-card-media">
             {% if dm.imagen_display_url %}
-              <img src="{{ dm.imagen_display_url }}" alt="{{ dm.carats }} ct {{ dm.shape }}" class="diamond-img">
+              <img src="{{ dm.imagen_display_url }}" alt="{{ dm.carats }} ct {{ dm.shape }}" class="diamond-img" onerror="this.src='{% static 'images/diamond.webp' %}'; this.style.opacity='0.3'; this.style.objectFit='contain';">
             {% else %}
-              <div class="diamond-img-placeholder">
-                <svg width="48" height="48" viewBox="0 0 36 36" fill="none">
-                  <polygon points="18,3 33,12 33,24 18,33 3,24 3,12" fill="none" stroke="#4A5568" stroke-width="1.2"/>
-                  <polygon points="18,3 26,12 18,21 10,12" fill="none" stroke="#4A5568" stroke-width="0.8" opacity="0.6"/>
-                </svg>
-                <span class="diamond-img-placeholder-text">{{ dm.shape }}</span>
+              <div class="diamond-img-placeholder d-flex flex-column align-items-center justify-content-center h-100">
+                <img src="{% static 'images/diamond.webp' %}" alt="Diamond Placeholder" style="width: 48px; opacity: 0.3; margin-bottom: 8px;">
+                <span class="diamond-img-placeholder-text" style="color: var(--ink-muted); font-size: 0.75rem;">{{ dm.shape }}</span>
               </div>
             {% endif %}
             <span class="diamond-card-lab {% if dm.lab == 'GIA' %}lab-gia{% else %}lab-igi{% endif %}">{{ dm.lab }}</span>
           </div>
 
           <div class="diamond-card-body">
-            <h5 class="diamond-card-title">{{ dm.carats }} ct {{ dm.shape }}</h5>
+            <h5 class="diamond-card-title">
+              <a href="{% url 'productos' %}?diamond_id={{ dm.id }}" class="stretched-link text-decoration-none" style="color: inherit;">
+                {{ dm.carats }} ct {{ dm.shape }}
+              </a>
+            </h5>
             <div class="diamond-card-specs">
               <span class="diamond-spec-badge">Color {{ dm.color }}</span>
               <span class="diamond-spec-badge">{{ dm.clarity }}</span>
               {% if dm.cut and dm.cut != '-' %}<span class="diamond-spec-badge">{{ dm.cut }}</span>{% endif %}
             </div>
             <div class="diamond-card-footer">
-              <strong class="diamond-price">${{ dm.precio|floatformat:0 }}</strong>
-              <a href="{% url 'productos' %}?diamond_id={{ dm.id }}" class="btn-diamond-view">
+              <div>
+                <!-- Price hidden -->
+              </div>
+              <span class="btn-diamond-view">
                 Ver ficha
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </a>
+              </span>
             </div>
           </div>
         </div>
@@ -240,8 +242,8 @@
               <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
             </svg>
           </div>
-          <h5 class="cert-card-title">Conexión B2B Global Live</h5>
-          <p class="cert-card-desc">Acceso directo a la red internacional Nivoda para conseguir la mejor calidad al precio de mercado B2B más competitivo del mundo.</p>
+          <h5 class="cert-card-title">Acceso Global Exclusivo</h5>
+          <p class="cert-card-desc">Conectamos directamente con los centros diamantíferos más prestigiosos del mundo para garantizarle una selección inigualable y la máxima pureza en cada gema.</p>
         </div>
       </div>
 
