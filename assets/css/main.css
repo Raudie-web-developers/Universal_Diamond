@@ -19,6 +19,11 @@
   --gold-pale:    rgba(184,150,46,0.10);
   --gold-glow:    rgba(184,150,46,0.18);
 
+  --emerald:      #0A3D2C;
+  --emerald-light:#185c45;
+  --emerald-glow: rgba(10, 61, 44, 0.08);
+
+
   --ink:          #1C1810;
   --ink-soft:     #4A4030;
   --ink-muted:    rgba(28,24,16,0.755);
@@ -1832,19 +1837,19 @@ a.contact-info-item:hover .contact-info-icon { background: rgba(184,150,46,0.18)
   line-height: 1.6;
 }
 .cert-card--accent {
-  background: var(--ink);
-  border-color: var(--ink);
+  background: var(--emerald);
+  border-color: var(--emerald-light);
 }
 .cert-card--accent .cert-card-icon {
-  background: var(--gold-glow);
-  color: var(--gold-light);
-  box-shadow: none;
+  background: var(--white);
+  color: var(--emerald);
+  box-shadow: 0 4px 15px var(--emerald-glow);
 }
 .cert-card--accent .cert-card-title {
-  color: var(--gold-light);
+  color: var(--cream);
 }
 .cert-card--accent .cert-card-desc {
-  color: var(--white) !important;
+  color: rgba(255,255,255,0.85) !important;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1886,13 +1891,13 @@ a.contact-info-item:hover .contact-info-icon { background: rgba(184,150,46,0.18)
   transition: color 0.3s var(--ease-out);
 }
 .shape-card:hover {
-  border-color: var(--gold-dim);
-  background: var(--gold-pale);
+  border-color: rgba(10, 61, 44, 0.3);
+  background: rgba(10, 61, 44, 0.03);
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(184,150,46,0.1);
+  box-shadow: 0 8px 20px var(--emerald-glow);
 }
 .shape-card:hover .shape-label {
-  color: var(--ink);
+  color: var(--emerald);
   font-weight: 600;
 }
 
@@ -2112,7 +2117,7 @@ body, p, .cert-card-desc {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(28,24,16,0.95) 0%, rgba(28,24,16,0.5) 50%, rgba(28,24,16,0) 100%);
+  background: linear-gradient(90deg, rgba(10, 61, 44, 0.95) 0%, rgba(10, 61, 44, 0.4) 50%, rgba(10, 61, 44, 0) 100%);
   z-index: 1;
 }
 .hero-content h1 {
@@ -2182,4 +2187,36 @@ body, p, .cert-card-desc {
 .hero-btns .btn-ghost:hover {
   background-color: rgba(255,255,255,0.1) !important;
   border-color: var(--white) !important;
+}
+
+/* Emerald Green Accent Classes */
+.btn-emerald {
+  background-color: var(--emerald) !important;
+  color: var(--white) !important;
+  border: none !important;
+  padding: 1rem 2rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em;
+  transition: all 0.3s var(--ease-out);
+}
+.btn-emerald:hover {
+  background-color: var(--emerald-light) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--emerald-glow);
+}
+.bg-emerald-soft {
+  background: linear-gradient(135deg, var(--white) 0%, rgba(10, 61, 44, 0.05) 100%) !important;
+}
+.text-emerald {
+  color: var(--emerald) !important;
+}
+.icon-emerald {
+  background: var(--white) !important;
+  border-color: rgba(10, 61, 44, 0.3) !important;
+  color: var(--emerald) !important;
+  box-shadow: 0 4px 10px var(--emerald-glow) !important;
+}
+a:hover .icon-emerald {
+  background: var(--emerald) !important;
+  color: var(--white) !important;
 }

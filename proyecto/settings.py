@@ -27,9 +27,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-4y8s5^1l@i@bz90rjcqxuda!6oknb4m&_d+w2b()k&5ec68j&6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+def _env_list(name, default):
+    value = os.getenv(name, default)
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
 
-ALLOWED_HOSTS = ["*"]
+DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() in {"1", "true", "yes", "on"}
+
+ALLOWED_HOSTS = _env_list("ALLOWED_HOSTS", "*")
 
 
 # Application definition
@@ -154,4 +160,7 @@ CORREO_VENTAS = 'xdarkvaderxx@gmail.com'
 # Ejemplo: '+584121234567' o '584121234567'
 WHATSAPP_EMPRESA = '+584121234567'
 
-CSRF_TRUSTED_ORIGINS = ["https://869e-63-141-49-159.ngrok-free.app/"]
+CSRF_TRUSTED_ORIGINS = _env_list(
+    "CSRF_TRUSTED_ORIGINS",
+    "https://869e-63-141-49-159.ngrok-free.app"
+)
