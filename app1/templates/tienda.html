@@ -1,16 +1,16 @@
 {% extends 'base_index.html' %}
 {% load static %}
 
-{% block title %}Buscador de Diamantes Certificados | Universal Diamond{% endblock %}
-{% block meta_desc %}Busca y filtra diamantes certificados GIA, IGI y HRD por forma, quilates, color, claridad y precio. Inventario B2B en tiempo real.{% endblock %}
+{% block title %}{% if banner_info %}{{ banner_info.title }} | Universal Diamond{% else %}Buscador de Diamantes Certificados | Universal Diamond{% endif %}{% endblock %}
 
 {% block content %}
 
 <!-- ─── PAGE HERO ───────────────────────────────────────── -->
 <div class="page-header">
   <div class="container position-relative z-1 text-center py-4">
-    <h1 class="page-header-title">Buscador de <em class="section-accent">Diamantes</em></h1>
-    <p class="page-header-sub mx-auto">Explora nuestro inventario de diamantes naturales y lab-grown certificados por GIA, IGI y HRD.</p>
+    <span class="eyebrow d-block mb-2" style="color:var(--gold-dim); letter-spacing:0.3em; font-size:0.7rem; font-weight:600; text-transform:uppercase;">UNIVERSAL DIAMOND CATALOG</span>
+    <h1 class="page-header-title mb-3" style="color:var(--cream);">{{ banner_info.title }}</h1>
+    <p class="page-header-sub mx-auto" style="color:rgba(250,247,240,0.65); max-width:620px;">{{ banner_info.desc }}</p>
   </div>
 </div>
 
@@ -24,8 +24,14 @@
   {% endif %}
 
   <form method="GET" action="{% url 'tienda' %}" id="diamondFilterForm">
+    <!-- Preservar tipo y subtipo actual -->
+    <input type="hidden" name="tipo" value="{{ selected_tipo }}">
+    <input type="hidden" name="subtipo" value="{{ selected_subtipo }}">
+    {% if has_image %}<input type="hidden" name="has_image" value="1">{% endif %}
+    {% if has_video %}<input type="hidden" name="has_video" value="1">{% endif %}
+
     <button class="btn-primary-luxury w-100 d-lg-none mb-4" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse" style="padding: 12px; font-size: 14px;">
-      <i class="fas fa-filter"></i> Mostrar / Ocultar Filtros
+      <i class="fas fa-filter"></i> Mostrar / Ocultar Filtros Detallados
     </button>
     <div class="collapse d-lg-block" id="filterCollapse">
       <div class="diamond-filter-bar mb-5">
@@ -154,7 +160,7 @@
   <div class="results-bar mb-4">
     <div class="results-count">
       <span class="results-number">{{ total_count }}</span>
-      <span class="results-label">diamantes encontrados</span>
+      <span class="results-label">resultados</span>
     </div>
     {% if total_pages > 1 %}
     <div class="results-page">Página <strong>{{ page }}</strong> de <strong>{{ total_pages }}</strong></div>
@@ -162,26 +168,25 @@
   </div>
 
   <!-- DIAMOND GRID -->
-  <div class="row g-4">
+  <div class="row g-4" id="diamond-grid">
     {% for dm in diamonds %}
-    <div class="col-6 col-md-4 col-lg-3">
-      <div class="diamond-card position-relative">
+    <div class="col-6 col-md-4 col-lg-3 diamond-item {% if forloop.counter0 >= 12 %}d-none is-backup{% endif %}">
+      <div class="diamond-card position-relative h-100 d-flex flex-column">
         <div class="diamond-card-media">
           {% if dm.imagen_display_url %}
-            <img src="{{ dm.imagen_display_url }}" alt="{{ dm.carats }} ct {{ dm.shape }}" class="diamond-img" onerror="this.src='{% static 'images/diamond.webp' %}'; this.style.opacity='0.3'; this.style.objectFit='contain';">
+            {% if forloop.counter0 < 12 %}
+              <img src="{{ dm.imagen_display_url }}" alt="{{ dm.carats }} ct {{ dm.shape }}" class="diamond-img" onerror="handleBroken(this)">
+            {% else %}
+              <img data-src="{{ dm.imagen_display_url }}" alt="{{ dm.carats }} ct {{ dm.shape }}" class="diamond-img" onerror="handleBroken(this)">
+            {% endif %}
           {% else %}
-            <div class="diamond-img-placeholder d-flex flex-column align-items-center justify-content-center h-100" style="background: var(--cream-1);">
-              <img src="{% static 'images/diamond.webp' %}" alt="Diamond Placeholder" style="width: 48px; opacity: 0.3; margin-bottom: 8px;">
-              <span class="diamond-img-placeholder-text" style="color: var(--ink-muted); font-size: 0.75rem;">{{ dm.shape }}</span>
-            </div>
+            <script>handleBroken(document.currentScript);</script>
           {% endif %}
-
-
 
           <span class="diamond-card-lab {% if dm.lab == 'GIA' %}lab-gia{% else %}lab-igi{% endif %}">{{ dm.lab }}</span>
         </div>
 
-        <div class="diamond-card-body">
+        <div class="diamond-card-body d-flex flex-column flex-grow-1">
           <h5 class="diamond-card-title">
             <a href="{% url 'productos' %}?diamond_id={{ dm.id }}" class="stretched-link text-decoration-none" style="color: inherit;">
               {{ dm.carats }} ct {{ dm.shape }}
@@ -192,13 +197,11 @@
             <span class="diamond-spec-badge">{{ dm.clarity }}</span>
             {% if dm.cut and dm.cut != '-' %}<span class="diamond-spec-badge">{{ dm.cut }}</span>{% endif %}
           </div>
-          <div class="diamond-card-footer">
-            <div>
-              <!-- Price hidden -->
-            </div>
+          <div class="diamond-card-footer mt-auto">
+            <div></div>
             <span class="btn-diamond-view">
               Ver ficha
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </span>
           </div>
         </div>
@@ -210,21 +213,21 @@
         <polygon points="18,3 33,12 33,24 18,33 3,24 3,12" fill="none" stroke="var(--platinum)" stroke-width="1.2"/>
         <polygon points="18,3 26,12 18,21 10,12" fill="none" stroke="var(--platinum)" stroke-width="0.8"/>
       </svg>
-      <h4 style="color:var(--silver); font-family:'Cormorant Garamond',serif; font-weight:400;">No se encontraron diamantes</h4>
+      <h4 style="color:var(--silver); font-family:'Cormorant Garamond',serif; font-weight:400;">No se encontraron productos</h4>
       <p style="color:var(--silver-dim); font-size:0.9rem;">Intenta ajustar los criterios de búsqueda o limpia los filtros.</p>
-      <a href="{% url 'tienda' %}" class="btn-primary-luxury mt-3 d-inline-flex">Ver Todos los Diamantes</a>
+      <a href="{% url 'tienda' %}" class="btn-primary-luxury mt-3 d-inline-flex">Ver Catálogo Completo</a>
     </div>
     {% endfor %}
   </div>
 
   <!-- PAGINATION -->
   {% if total_pages > 1 %}
-  <div class="d-flex justify-content-center mt-6">
+  <div class="d-flex justify-content-center mt-5">
     <nav aria-label="Navegación de páginas">
       <ul class="pagination">
         {% if has_prev %}
         <li class="page-item">
-          <a class="page-link luxury-page-link" href="?page={{ prev_page }}&min_carats={{ min_carats }}&max_carats={{ max_carats }}&order_by={{ order_by }}">
+          <a class="page-link luxury-page-link" href="?page={{ prev_page }}&{{ url_params }}">
             ← Anterior
           </a>
         </li>
@@ -236,7 +239,7 @@
 
         {% if has_next %}
         <li class="page-item">
-          <a class="page-link luxury-page-link" href="?page={{ next_page }}&min_carats={{ min_carats }}&max_carats={{ max_carats }}&order_by={{ order_by }}">
+          <a class="page-link luxury-page-link" href="?page={{ next_page }}&{{ url_params }}">
             Siguiente →
           </a>
         </li>
@@ -247,5 +250,36 @@
   {% endif %}
 
 </div>
+
+<script>
+  function handleBroken(element) {
+    let item = element.closest('.diamond-item');
+    if (item) {
+      // Check if it was currently visible or meant to be visible
+      let wasVisible = !item.classList.contains('d-none');
+      item.classList.add('d-none');
+      item.classList.remove('is-backup'); // Discard it completely
+      
+      if (wasVisible) {
+        let grid = document.getElementById('diamond-grid');
+        if (grid) {
+          // Find the next available backup
+          let backup = grid.querySelector('.is-backup');
+          if (backup) {
+            backup.classList.remove('is-backup'); // Claim it
+            backup.classList.remove('d-none');    // Show it
+            
+            // Trigger image load for this backup
+            let img = backup.querySelector('img[data-src]');
+            if (img) {
+              img.src = img.getAttribute('data-src');
+              img.removeAttribute('data-src');
+            }
+          }
+        }
+      }
+    }
+  }
+</script>
 
 {% endblock %}

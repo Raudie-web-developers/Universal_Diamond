@@ -45,6 +45,13 @@ class Product(models.Model):
     image_url = models.URLField(max_length=500, null=True, blank=True)
     video_url = models.URLField(max_length=500, null=True, blank=True)
     v360_url = models.URLField(max_length=500, null=True, blank=True)
+    DIAMOND_TYPE_CHOICES = [
+        ('NATURAL', 'Diamantes naturales'),
+        ('LAB_GROWN', 'Diamantes de laboratorio'),
+        ('MELEE_NATURAL', 'Melee naturales'),
+        ('MELEE_LAB', 'Melee de laboratorio'),
+    ]
+    diamond_type = models.CharField(max_length=30, choices=DIAMOND_TYPE_CHOICES, default='NATURAL', db_index=True)
     is_diamond = models.BooleanField(default=True)
 
     def get_precios_por_peso(self):

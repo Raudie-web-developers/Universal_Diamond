@@ -9,8 +9,8 @@
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-      <h1 class="h3 mb-0 text-dark font-display"><i class="fas fa-gem text-warning me-2"></i>Inventario de Diamantes Certificados</h1>
-      <p class="text-muted small mb-0">Gestión de diamantes sincronizados desde el API B2B de Nivoda</p>
+      <h1 class="h3 mb-0 text-dark font-display"><i class="fas fa-bolt text-warning me-2"></i>Inventario de Diamantes (En Vivo)</h1>
+      <p class="text-muted small mb-0">Gestión de diamantes buscando directamente en la base de datos de Nivoda B2B en tiempo real.</p>
     </div>
     <a href="{% url 'configuracion_whatsapp' %}" class="btn btn-outline-dark btn-sm rounded-pill">
       <i class="fas fa-cog me-1"></i>Configurar Credenciales Nivoda API
@@ -19,100 +19,21 @@
 
   <!-- KPI CARDS -->
   <div class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-12">
       <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
         <div class="d-flex align-items-center">
           <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary me-3">
-            <i class="fas fa-gem fs-3"></i>
+            <i class="fas fa-satellite-dish fs-3"></i>
           </div>
           <div>
-            <span class="text-muted small text-uppercase font-weight-bold d-block">Total Diamantes</span>
-            <h3 class="mb-0 font-display fw-bold text-dark">{{ total_diamantes|default:0 }}</h3>
+            <span class="text-muted small text-uppercase font-weight-bold d-block">Estado de Conexión</span>
+            <h3 class="mb-0 font-display fw-bold text-dark">
+              {% if productos %}Conectado y mostrando resultados{% else %}Esperando búsqueda...{% endif %}
+            </h3>
+            <p class="mb-0 text-muted small mt-1">Explorando el inventario global en vivo. Usa los filtros para refinar la búsqueda.</p>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
-        <div class="d-flex align-items-center">
-          <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning me-3">
-            <i class="fas fa-cube fs-3"></i>
-          </div>
-          <div>
-            <span class="text-muted small text-uppercase font-weight-bold d-block">Con Vista / Video 360°</span>
-            <h3 class="mb-0 font-display fw-bold text-dark">{{ diamantes_con_360|default:0 }}</h3>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
-        <div class="d-flex align-items-center">
-          <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success me-3">
-            <i class="fas fa-dollar-sign fs-3"></i>
-          </div>
-          <div>
-            <span class="text-muted small text-uppercase font-weight-bold d-block">Valor Total Inventario</span>
-            <h3 class="mb-0 font-display fw-bold text-dark">${{ valor_total_inventario|floatformat:2 }} USD</h3>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CARD SINCRONIZADOR NIVODA API -->
-  <div class="card mb-4 border-warning shadow-sm rounded-3 overflow-hidden">
-    <div class="card-header bg-dark text-white d-flex align-items-center justify-content-between py-3">
-      <h5 class="mb-0 font-display fs-6"><i class="fas fa-cloud-download-alt text-warning me-2"></i>Sincronizar Inventario desde Nivoda B2B API</h5>
-      <span class="badge bg-warning text-dark">Descarga Directa a BD</span>
-    </div>
-    <div class="card-body">
-      <form method="post" action="{% url 'sincronizar_diamantes' %}" class="row g-3 align-items-end">
-        {% csrf_token %}
-        <div class="col-md-3">
-          <label class="form-label font-weight-bold small text-dark">Límite a Descargar</label>
-          <select name="limit" class="form-select form-select-sm">
-            <option value="50">50 Diamantes</option>
-            <option value="100" selected>100 Diamantes</option>
-            <option value="250">250 Diamantes</option>
-            <option value="500">500 Diamantes</option>
-          </select>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label font-weight-bold small text-dark">Filtrar por Formas (Opcional)</label>
-          <div class="d-flex flex-wrap gap-2">
-            <div class="form-check form-check-inline small">
-              <input class="form-check-input" type="checkbox" name="shapes" value="ROUND" id="shapeRound" checked>
-              <label class="form-check-label" for="shapeRound">Round</label>
-            </div>
-            <div class="form-check form-check-inline small">
-              <input class="form-check-input" type="checkbox" name="shapes" value="OVAL" id="shapeOval" checked>
-              <label class="form-check-label" for="shapeOval">Oval</label>
-            </div>
-            <div class="form-check form-check-inline small">
-              <input class="form-check-input" type="checkbox" name="shapes" value="CUSHION" id="shapeCushion" checked>
-              <label class="form-check-label" for="shapeCushion">Cushion</label>
-            </div>
-            <div class="form-check form-check-inline small">
-              <input class="form-check-input" type="checkbox" name="shapes" value="PRINCESS" id="shapePrincess" checked>
-              <label class="form-check-label" for="shapePrincess">Princess</label>
-            </div>
-            <div class="form-check form-check-inline small">
-              <input class="form-check-input" type="checkbox" name="shapes" value="EMERALD" id="shapeEmerald" checked>
-              <label class="form-check-label" for="shapeEmerald">Emerald</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-3">
-          <button type="submit" class="btn btn-warning w-100 py-2 font-weight-bold text-dark">
-            <i class="fas fa-sync-alt me-2"></i>Sincronizar Diamantes
-          </button>
-        </div>
-      </form>
     </div>
   </div>
 
@@ -244,13 +165,6 @@
                   <a href="{% url 'productos' %}?diamond_id={{ producto.id }}" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill" title="Ver en Tienda">
                     <i class="fas fa-eye me-1"></i>Ver Ficha
                   </a>
-                  <form method="post" action="{% url 'control_productos' %}" onsubmit="return confirm('¿Eliminar diamante de la base de datos local?');" class="d-inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="eliminar_producto" value="{{ producto.id }}">
-                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle" title="Eliminar">
-                      <i class="fas fa-trash-alt"></i>
-                    </button>
-                  </form>
                 </div>
               </td>
             </tr>
@@ -269,15 +183,15 @@
     </div>
 
     <!-- PAGINACIÓN -->
-    {% if page_obj and page_obj.has_other_pages %}
+    {% if total_pages > 1 or page > 1 %}
     <div class="card-footer bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-      <span class="small text-muted">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+      <span class="small text-muted">Página {{ page }} {% if not has_next %}(Última){% endif %}</span>
       <ul class="pagination pagination-sm mb-0">
-        {% if page_obj.has_previous %}
-          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&shape={{ shape_filter }}&lab={{ lab_filter }}">Anterior</a></li>
+        {% if has_prev %}
+          <li class="page-item"><a class="page-link" href="?page={{ prev_page }}&{{ url_params }}">Anterior</a></li>
         {% endif %}
-        {% if page_obj.has_next %}
-          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&shape={{ shape_filter }}&lab={{ lab_filter }}">Siguiente</a></li>
+        {% if has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ next_page }}&{{ url_params }}">Siguiente</a></li>
         {% endif %}
       </ul>
     </div>

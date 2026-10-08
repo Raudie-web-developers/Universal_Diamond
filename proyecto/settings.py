@@ -164,3 +164,8 @@ CSRF_TRUSTED_ORIGINS = _env_list(
     "CSRF_TRUSTED_ORIGINS",
     "https://869e-63-141-49-159.ngrok-free.app"
 )
+CSRF_TRUSTED_ORIGINS = [
+    'https://demos.raudie.net',
+    'https://*.onrender.com',
+]
+

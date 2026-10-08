@@ -318,45 +318,65 @@ def control_productos(request):
         # Siempre redirigir después de un POST exitoso
         return redirect(reverse('control_productos'))
 
-    # --- Lógica GET para inventario de diamantes ---
-    from app1.models import Product
-    from django.db.models import Q, Sum
-
-    productos = Product.objects.filter(is_diamond=True, carats__isnull=False)
+    # --- Lógica GET para inventario de diamantes (EN VIVO) ---
+    from app1.nivoda import NivodaAPI
+    from app1.views import MockProduct
 
     q = request.GET.get('q', '').strip()
     shape_filter = request.GET.get('shape', '').strip()
     lab_filter = request.GET.get('lab', '').strip()
+    page = int(request.GET.get('page', 1))
 
-    if q:
-        productos = productos.filter(
-            Q(nombre__icontains=q) |
-            Q(cert_number__icontains=q) |
-            Q(nivoda_id__icontains=q)
+    limit = 20
+    offset = (page - 1) * limit
+
+    # We cannot search Nivoda effectively by cert_number or name easily with just one field, 
+    # but let's assume we can filter by ID if it looks like one, or just ignore 'q' for now
+    # Wait, Nivoda doesn't have a direct "search text" field in the GraphQL we mapped.
+    # For now, we will just use shape and lab filters.
+
+    shapes_param = [shape_filter.upper()] if shape_filter else None
+    labs_param = [lab_filter.upper()] if lab_filter else ['GIA', 'HRD', 'IGI']
+
+    try:
+        api_res = NivodaAPI.search_diamonds(
+            shapes=shapes_param,
+            labs=labs_param,
+            limit=limit,
+            offset=offset
         )
-    if shape_filter:
-        productos = productos.filter(shape__iexact=shape_filter)
-    if lab_filter:
-        productos = productos.filter(lab__iexact=lab_filter)
+        diamonds_list = [MockProduct(item) for item in api_res.get('items', [])]
+    except Exception as e:
+        print(f"Error calling Nivoda API in control panel: {e}")
+        diamonds_list = []
 
-    total_diamantes = productos.count()
-    valor_total_inventario = productos.aggregate(total=Sum('precio'))['total'] or 0
-    diamantes_con_360 = productos.filter(
-        (Q(v360_url__isnull=False) & ~Q(v360_url='')) |
-        (Q(video_url__isnull=False) & ~Q(video_url=''))
-    ).count()
+    # Pagination math based on true total_count from API
+    api_total_count = api_res.get("total_count", 0)
+    import math
+    total_pages = math.ceil(api_total_count / limit) if api_total_count > 0 else 1
+    total_count = "{:,}".format(api_total_count)
 
-    from django.core.paginator import Paginator
-    paginator = Paginator(productos.order_by('-carats'), 20)
-    page = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page)
+    page_obj_has_previous = page > 1
+    page_obj_has_next = page < total_pages
+    page_obj_previous_page_number = page - 1
+    page_obj_next_page_number = page + 1
+    page_obj_number = page
+
+    query_params = request.GET.copy()
+    if 'page' in query_params:
+        query_params.pop('page')
+    url_params = query_params.urlencode()
 
     return render(request, 'control_productos.html', {
-        'productos': page_obj.object_list,
-        'page_obj': page_obj,
-        'total_diamantes': total_diamantes,
-        'valor_total_inventario': valor_total_inventario,
-        'diamantes_con_360': diamantes_con_360,
+        'productos': diamonds_list,
+        'page': page_obj_number,
+        'has_prev': page_obj_has_previous,
+        'has_next': page_obj_has_next,
+        'prev_page': page_obj_previous_page_number,
+        'next_page': page_obj_next_page_number,
+        'total_pages': total_pages,
+        'total_count': total_count,
+        'url_params': url_params,
         'q': q,
         'shape_filter': shape_filter,
         'lab_filter': lab_filter,
@@ -1087,12 +1107,14 @@ def sincronizar_diamantes(request):
         return redirect('login')
 
     if request.method == 'POST':
-        limit = int(request.POST.get('limit', '100'))
+        limit_str = request.POST.get('limit', '100')
+        limit = int(limit_str) if limit_str.isdigit() else 100
         shapes = request.POST.getlist('shapes')
+        ignore_repeats = request.POST.get('ignore_repeats') == '1'
 
         try:
             from app1.nivoda import NivodaAPI
-            res = NivodaAPI.sync_diamonds_to_db(limit=limit, shapes=shapes)
+            res = NivodaAPI.sync_diamonds_to_db(limit=limit, shapes=shapes, ignore_repeats=ignore_repeats)
             messages.success(
                 request,
                 f"¡Sincronización completada! {res['total_fetched']} diamantes procesados desde Nivoda API. "

@@ -111,7 +111,7 @@ class NivodaAPI:
         )
 
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=30) as resp:
                 res = json.loads(resp.read().decode())
                 if "errors" in res and not res.get("data"):
                     raise ValueError(res["errors"][0]["message"])
@@ -121,7 +121,7 @@ class NivodaAPI:
             if e.code in (401, 403):
                 token = cls.get_token(force_refresh=True)
                 req.headers["Authorization"] = f"Bearer {token}"
-                with urllib.request.urlopen(req, timeout=15) as resp:
+                with urllib.request.urlopen(req, timeout=30) as resp:
                     return json.loads(resp.read().decode())
             error_body = e.read().decode()
             raise RuntimeError(f"Nivoda API HTTP {e.code}: {error_body}")
@@ -165,12 +165,9 @@ class NivodaAPI:
         # Carats filter -> sizes (FloatRange list)
         if min_carats is not None or max_carats is not None:
             carats_filter = {}
-            if min_carats is not None and min_carats > 0:
-                carats_filter["from"] = float(min_carats)
-            if max_carats is not None and max_carats > 0:
-                carats_filter["to"] = float(max_carats)
-            if carats_filter:
-                query_input["sizes"] = [carats_filter]
+            carats_filter["from"] = float(min_carats) if min_carats is not None and min_carats > 0 else 0.0
+            carats_filter["to"] = float(max_carats) if max_carats is not None and max_carats > 0 else 100.0
+            query_input["sizes"] = [carats_filter]
 
         if colors:
             query_input["color"] = [c.upper() for c in colors if c]
@@ -183,18 +180,14 @@ class NivodaAPI:
 
         if min_price is not None or max_price is not None:
             price_filter = {}
-            if min_price is not None and min_price > 0:
-                price_filter["from"] = int(min_price)
-            if max_price is not None and max_price > 0:
-                price_filter["to"] = int(max_price)
-            if price_filter:
-                query_input["dollar_value"] = price_filter
+            price_filter["from"] = int(min_price) if min_price is not None and min_price > 0 else 0
+            price_filter["to"] = int(max_price) if max_price is not None and max_price > 0 else 100000000
+            query_input["dollar_value"] = price_filter
 
         graphql_query = """
         query SearchDiamonds($query: DiamondQuery, $offset: Int, $limit: Int, $order: DiamondOrder) {
+          diamonds_by_query_count(query: $query)
           diamonds_by_query(query: $query, offset: $offset, limit: $limit, order: $order) {
-            total_count
-            result_count
             items {
               id
               price
@@ -229,8 +222,8 @@ class NivodaAPI:
         """
 
         order_input = None
-        if order_by in ("price", "carats"):
-            field = "price" if order_by == "price" else "carats"
+        if order_by in ("price", "carats", "carat", "size"):
+            field = "price" if order_by == "price" else "size"
             direction = "ASC" if order_dir.upper() == "ASC" else "DESC"
             order_input = {"type": field, "direction": direction}
 
@@ -282,8 +275,11 @@ class NivodaAPI:
                 "table": cert.get("table"),
             })
 
+        true_total = res.get("data", {}).get("diamonds_by_query_count")
+        fallback_total = data.get("total_count", len(formatted_items))
+
         return {
-            "total_count": data.get("total_count", len(formatted_items)),
+            "total_count": true_total if true_total is not None else fallback_total,
             "items": formatted_items
         }
 
@@ -383,80 +379,133 @@ class NivodaAPI:
         shapes: Optional[list] = None,
         min_carats: Optional[float] = None,
         max_carats: Optional[float] = None,
+        ignore_repeats: bool = False,
     ) -> Dict[str, Any]:
         """
         Download diamonds from Nivoda API and store/update them in local Django database Product table.
         """
+        import time
         from app1.models import Product
         from decimal import Decimal
 
-        res = cls.search_diamonds(
-            shapes=shapes,
-            min_carats=min_carats,
-            max_carats=max_carats,
-            has_v360=True,
-            has_image=True,
-            limit=limit,
-            offset=offset
-        )
-
-        items = res.get("items", [])
+        res_total = None
+        fetched_total = 0
         created_count = 0
         updated_count = 0
+        current_offset = offset
+        batch_size = 50
 
-        for item in items:
-            n_id = item.get('id') or item.get('diamond_id')
-            if not n_id:
-                continue
+        # Cargar IDs existentes si ignoramos repetidos para validación rápida en BD
+        existing_ids = set()
+        if ignore_repeats:
+            existing_ids = set(Product.objects.filter(is_diamond=True, nivoda_id__isnull=False).values_list('nivoda_id', flat=True))
 
-            shape = item.get('shape') or 'ROUND'
-            carats = item.get('carats') or 0.0
-            color = item.get('color') or '-'
-            clarity = item.get('clarity') or '-'
-            lab = item.get('lab') or 'GIA'
+        while True:
+            # Determinamos si ya llegamos a la meta
+            target_reached = (created_count >= limit) if ignore_repeats else (fetched_total >= limit)
+            if target_reached:
+                break
 
-            title = f"Diamante {carats} ct {shape} ({color}/{clarity} - {lab})"
-            desc = f"Diamante certificado por {lab}. Certificado #: {item.get('cert_number') or 'N/A'}"
-            price_dec = Decimal(str(item.get('price', 0)))
-            carats_dec = Decimal(str(carats)) if carats else Decimal('0')
+            fetch_limit = min(batch_size, limit - (created_count if ignore_repeats else fetched_total))
+            # Nivoda API no deja pedir más de 50 a la vez, si fetch_limit es mayor lo limitamos.
+            fetch_limit = min(50, fetch_limit)
 
-            img_url = item.get('image') or ''
-            video_link = item.get('video') or ''
-            v360_raw = (item.get('v360') or {}).get('url') if isinstance(item.get('v360'), dict) else item.get('v360')
-            v360_link = unwrap_nivoda_360_url(v360_raw)
-            if not v360_link and video_link and ('loupe360' in video_link or 'vision360' in video_link or '360' in video_link):
-                v360_link = video_link
+            try:
+                res = cls.search_diamonds(
+                    shapes=shapes,
+                    min_carats=min_carats,
+                    max_carats=max_carats,
+                    has_v360=True,
+                    has_image=True,
+                    limit=fetch_limit,
+                    offset=current_offset
+                )
+            except Exception as e:
+                print(f"Error fetching at offset {current_offset}: {e}")
+                time.sleep(3)
+                break # Si falla abortamos el loop, guardamos lo que tenemos
+                
+            if res_total is None:
+                res_total = res
 
-            prod, created = Product.objects.update_or_create(
-                nivoda_id=n_id,
-                defaults={
-                    'nombre': title,
-                    'descripcion': desc,
-                    'precio': price_dec,
-                    'shape': shape,
-                    'carats': carats_dec,
-                    'color': color,
-                    'clarity': clarity,
-                    'cut': item.get('cut') or '-',
-                    'polish': item.get('polish') or '-',
-                    'symmetry': item.get('symmetry') or '-',
-                    'lab': lab,
-                    'cert_number': item.get('cert_number') or '',
-                    'cert_pdf': item.get('pdf_url') or '',
-                    'image_url': img_url,
-                    'video_url': video_link,
-                    'v360_url': v360_link,
-                    'is_diamond': True,
-                }
-            )
-            if created:
-                created_count += 1
-            else:
-                updated_count += 1
+            items = res.get("items", [])
+            if not items:
+                break
+
+            current_offset += len(items)
+            fetched_total += len(items)
+
+            for item in items:
+                # Meta alcanzada en pleno bucle?
+                if (ignore_repeats and created_count >= limit) or (not ignore_repeats and (created_count + updated_count) >= limit):
+                    break
+
+                n_id = item.get('id') or item.get('diamond_id')
+                if not n_id:
+                    continue
+
+                if ignore_repeats and n_id in existing_ids:
+                    continue # Saltar repetidos por completo, no actualizarlos ni contarlos
+
+                shape = item.get('shape') or 'ROUND'
+                carats = item.get('carats') or 0.0
+                color = item.get('color') or '-'
+                clarity = item.get('clarity') or '-'
+                lab = item.get('lab') or 'GIA'
+
+                title = f"Diamante {carats} ct {shape} ({color}/{clarity} - {lab})"
+                desc = f"Diamante certificado por {lab}. Certificado #: {item.get('cert_number') or 'N/A'}"
+                price_dec = Decimal(str(item.get('price', 0)))
+                carats_dec = Decimal(str(carats)) if carats else Decimal('0')
+
+                img_url = item.get('image') or ''
+                video_link = item.get('video') or ''
+                v360_raw = (item.get('v360') or {}).get('url') if isinstance(item.get('v360'), dict) else item.get('v360')
+                v360_link = unwrap_nivoda_360_url(v360_raw)
+                if not v360_link and video_link and ('loupe360' in video_link or 'vision360' in video_link or '360' in video_link):
+                    v360_link = video_link
+
+                carats_val = float(carats) if carats else 0.0
+                if carats_val <= 0.20:
+                    d_type = 'MELEE_LAB' if (lab or '').upper() == 'IGI' else 'MELEE_NATURAL'
+                else:
+                    d_type = 'LAB_GROWN' if (lab or '').upper() == 'IGI' else 'NATURAL'
+
+                prod, created = Product.objects.update_or_create(
+                    nivoda_id=n_id,
+                    defaults={
+                        'nombre': title,
+                        'descripcion': desc,
+                        'precio': price_dec,
+                        'shape': shape,
+                        'carats': carats_dec,
+                        'color': color,
+                        'clarity': clarity,
+                        'cut': item.get('cut') or '-',
+                        'polish': item.get('polish') or '-',
+                        'symmetry': item.get('symmetry') or '-',
+                        'lab': lab,
+                        'cert_number': item.get('cert_number') or '',
+                        'cert_pdf': item.get('pdf_url') or '',
+                        'image_url': img_url,
+                        'video_url': video_link,
+                        'v360_url': v360_link,
+                        'diamond_type': d_type,
+                        'is_diamond': True,
+                    }
+                )
+                if created:
+                    created_count += 1
+                    existing_ids.add(n_id)
+                else:
+                    updated_count += 1
+            
+            # Prevención contra el Rate Limiting 502 Bad Gateway
+            time.sleep(1.5)
 
         return {
-            'total_fetched': len(items),
-            'total_api_count': res.get('total_count', len(items)),
+            'total_fetched': fetched_total,
+            'total_api_count': (res_total or {}).get('total_count', fetched_total),
             'created': created_count,
             'updated': updated_count,
         }

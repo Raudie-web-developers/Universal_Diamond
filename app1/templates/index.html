@@ -122,11 +122,10 @@
         <div class="diamond-card position-relative">
           <div class="diamond-card-media">
             {% if dm.imagen_display_url %}
-              <img src="{{ dm.imagen_display_url }}" alt="{{ dm.carats }} ct {{ dm.shape }}" class="diamond-img" onerror="this.src='{% static 'images/diamond.webp' %}'; this.style.opacity='0.3'; this.style.objectFit='contain';">
+              <img src="{{ dm.imagen_display_url }}" alt="{{ dm.carats }} ct {{ dm.shape }}" class="diamond-img" onerror="this.onerror=null; this.src='{% static 'images/logo.png' %}'; this.style.padding='2rem'; this.style.opacity='0.3';">
             {% else %}
-              <div class="diamond-img-placeholder d-flex flex-column align-items-center justify-content-center h-100">
-                <img src="{% static 'images/diamond.webp' %}" alt="Diamond Placeholder" style="width: 48px; opacity: 0.3; margin-bottom: 8px;">
-                <span class="diamond-img-placeholder-text" style="color: var(--ink-muted); font-size: 0.75rem;">{{ dm.shape }}</span>
+              <div class="d-flex align-items-center justify-content-center w-100 h-100 bg-light" style="min-height:200px;">
+                 <img src="{% static 'images/logo.png' %}" style="width:60%; opacity:0.3; object-fit:contain;">
               </div>
             {% endif %}
             <span class="diamond-card-lab {% if dm.lab == 'GIA' %}lab-gia{% else %}lab-igi{% endif %}">{{ dm.lab }}</span>

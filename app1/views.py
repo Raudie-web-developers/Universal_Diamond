@@ -10,6 +10,37 @@ from urllib.parse import quote
 from decimal import Decimal
 from app2.models import AppConfig, Afiliado
 from django.utils import timezone
+from .nivoda import NivodaAPI
+
+class MockProduct:
+    def __init__(self, data):
+        self.id = data.get("diamond_id") or data.get("id")
+        self.nivoda_id = self.id
+        self.is_diamond = True
+        self.shape = data.get("shape") or 'ROUND'
+        self.carats = data.get("carats") or 0.0
+        self.color = data.get("color") or '-'
+        self.clarity = data.get("clarity") or '-'
+        self.lab = data.get("lab") or 'GIA'
+        self.cert_number = data.get("cert_number") or ''
+        self.precio = data.get("price") or 0.0
+        self.image_url = data.get("image") or ''
+        self.video_url = data.get("video") or ''
+        self.v360_url = data.get("v360") or ''
+        self.cut = data.get("cut") or '-'
+        self.polish = data.get("polish") or '-'
+        self.cert_pdf = data.get("pdf_url") or ''
+        
+        self.nombre = f"Diamante {self.carats} ct {self.shape} ({self.color}/{self.clarity} - {self.lab})"
+        self.descripcion = f"Diamante certificado por {self.lab}. Certificado #: {self.cert_number or 'N/A'}"
+
+    @property
+    def imagen_display_url(self):
+        return self.image_url
+
+    @property
+    def pk(self):
+        return self.id
 
 
 def get_whatsapp_empresa():
@@ -56,8 +87,19 @@ def index(request):
     whatsapp_number = get_whatsapp_empresa()
     whatsapp_number_clean = ''.join(ch for ch in whatsapp_number if ch.isdigit()) if whatsapp_number else ''
 
-    # Featured diamonds from local DB
-    featured_diamonds = Product.objects.filter(is_diamond=True).order_by('-carats')[:6]
+    from django.db.models import Case, When, Value, IntegerField, Q
+    # Featured diamonds from local DB prioritizing items with real images
+    featured_diamonds = Product.objects.filter(is_diamond=True).annotate(
+        has_valid_img=Case(
+            When(
+                (Q(imagen__isnull=False) & ~Q(imagen='')) |
+                (Q(image_url__isnull=False) & ~Q(image_url='') & ~Q(image_url__icontains='aHR0c')),
+                then=Value(1)
+            ),
+            default=Value(0),
+            output_field=IntegerField()
+        )
+    ).order_by('-has_valid_img', '-carats')[:6]
 
     shapes_grid = [
         {'name': 'Round', 'code': 'ROUND', 'icon': '💎'},
@@ -81,7 +123,13 @@ def index(request):
 
 
 def tienda(request):
+    from django.db.models import Q, Case, When, Value, IntegerField
+    from django.core.paginator import Paginator
+
     # Retrieve diamond filter parameters from GET
+    selected_type = (request.GET.get('tipo') or request.GET.get('type') or request.GET.get('diamond_type') or '').lower().strip()
+    selected_subtipo = (request.GET.get('subtipo') or request.GET.get('subtype') or '').lower().strip()
+
     selected_shapes = request.GET.getlist('shape')
     if not selected_shapes and request.GET.get('shape'):
         selected_shapes = [request.GET.get('shape')]
@@ -90,6 +138,11 @@ def tienda(request):
     selected_clarities = request.GET.getlist('clarity')
     selected_cuts = request.GET.getlist('cut')
     selected_labs = request.GET.getlist('lab')
+
+    has_image = request.GET.get('has_image', '1') == '1'
+    has_video = request.GET.get('has_video') == '1'
+    returnable = request.GET.get('returnable') == '1'
+    express = request.GET.get('express') == '1'
 
     def _get_float(key, default=None):
         val = request.GET.get(key, '').strip()
@@ -115,50 +168,99 @@ def tienda(request):
     except ValueError:
         page = 1
 
-    # Query local DB Products for diamonds
-    qs = Product.objects.filter(is_diamond=True)
-
-    selected_shapes = [s.upper() for s in selected_shapes if s]
-    if selected_shapes:
-        qs = qs.filter(shape__in=selected_shapes)
-
-    selected_colors = [c.upper() for c in selected_colors if c]
-    if selected_colors:
-        qs = qs.filter(color__in=selected_colors)
-
-    selected_clarities = [cl.upper() for cl in selected_clarities if cl]
-    if selected_clarities:
-        qs = qs.filter(clarity__in=selected_clarities)
-
-    selected_cuts = [ct.upper() for ct in selected_cuts if ct]
-    if selected_cuts:
-        qs = qs.filter(cut__in=selected_cuts)
-
-    selected_labs = [l.upper() for l in selected_labs if l]
-    if selected_labs:
-        qs = qs.filter(lab__in=selected_labs)
-
-    if min_carats is not None:
-        qs = qs.filter(carats__gte=min_carats)
-    if max_carats is not None:
-        qs = qs.filter(carats__lte=max_carats)
-
-    if min_price is not None:
-        qs = qs.filter(precio__gte=min_price)
-    if max_price is not None:
-        qs = qs.filter(precio__lte=max_price)
-
-    if order_by == 'carats':
-        order_field = '-carats' if order_dir.upper() == 'DESC' else 'carats'
-    else:
-        order_field = '-precio' if order_dir.upper() == 'DESC' else 'precio'
-
-    qs = qs.order_by(order_field)
-
-    from django.core.paginator import Paginator
     limit = 12
-    paginator = Paginator(qs, limit)
-    page_obj = paginator.get_page(page)
+    offset = (page - 1) * limit
+
+    # Check if we should query Nivoda API directly
+    is_diamond_query = True
+
+    if is_diamond_query:
+        # Determine labs parameter based on type
+        labs_param = [l.upper() for l in selected_labs if l]
+        if not labs_param:
+            if selected_type in ('natural', 'melee_natural'):
+                labs_param = ['GIA', 'HRD']
+            elif selected_type in ('lab_grown', 'lab', 'melee_lab'):
+                labs_param = ['IGI']
+            else:
+                labs_param = ['GIA', 'HRD', 'IGI'] # default to reliable labs
+
+        min_carats_param = min_carats
+        max_carats_param = max_carats
+
+        if selected_type in ('melee_natural', 'melee_lab'):
+            if max_carats_param is None or max_carats_param > 0.20:
+                max_carats_param = 0.20
+        else:
+            if min_carats_param is None or min_carats_param <= 0.20:
+                min_carats_param = 0.21
+
+        try:
+            api_res = NivodaAPI.search_diamonds(
+                shapes=selected_shapes,
+                min_carats=min_carats_param,
+                max_carats=max_carats_param,
+                colors=selected_colors,
+                clarities=selected_clarities,
+                cuts=selected_cuts,
+                labs=labs_param,
+                min_price=min_price,
+                max_price=max_price,
+                has_image=has_image,
+                has_v360=has_video,
+                limit=limit * 2, # Fetch extra for frontend backups
+                offset=offset,
+                order_by=order_by,
+                order_dir=order_dir
+            )
+            diamonds_list = [MockProduct(item) for item in api_res.get('items', [])]
+        except Exception as e:
+            print(f"Error calling Nivoda API: {e}")
+            diamonds_list = []
+
+        # Pagination math based on true total_count from API
+        api_total_count = api_res.get("total_count", 0)
+        import math
+        total_pages = math.ceil(api_total_count / limit) if api_total_count > 0 else 1
+        total_count = "{:,}".format(api_total_count) # format with commas
+
+        page_obj_has_previous = page > 1
+        page_obj_has_next = page < total_pages
+        page_obj_previous_page_number = page - 1
+        page_obj_next_page_number = page + 1
+        page_obj_number = page
+        
+    else:
+        # Local DB Query for non-diamond products (or fallback if no type selected)
+        qs = Product.objects.filter(is_diamond=False)
+
+        selected_shapes_upper = [s.upper() for s in selected_shapes if s]
+        if selected_shapes_upper:
+            qs = qs.filter(shape__in=selected_shapes_upper)
+
+        if min_price is not None:
+            qs = qs.filter(precio__gte=min_price)
+        if max_price is not None:
+            qs = qs.filter(precio__lte=max_price)
+
+        if order_by == 'carats':
+            order_field = '-carats' if order_dir.upper() == 'DESC' else 'carats'
+        else:
+            order_field = '-precio' if order_dir.upper() == 'DESC' else 'precio'
+
+        qs = qs.order_by(order_field)
+
+        paginator = Paginator(qs, limit)
+        page_obj = paginator.get_page(page)
+        
+        diamonds_list = page_obj.object_list
+        total_count = paginator.count
+        total_pages = paginator.num_pages
+        page_obj_has_previous = page_obj.has_previous()
+        page_obj_has_next = page_obj.has_next()
+        page_obj_previous_page_number = page_obj.previous_page_number() if page_obj.has_previous() else 1
+        page_obj_next_page_number = page_obj.next_page_number() if page_obj.has_next() else 1
+        page_obj_number = page_obj.number
 
     cart_count = _get_cart_count(request)
     whatsapp_url = get_whatsapp_url()
@@ -170,20 +272,69 @@ def tienda(request):
     all_cuts = ['IDEAL', 'EXCELLENT', 'VERY_GOOD', 'GOOD']
     all_labs = ['GIA', 'IGI', 'HRD', 'EGL']
 
+    # Custom banner info for selected section
+    if selected_type == 'natural':
+        banner_info = {
+            'title': 'Diamantes Naturales',
+            'desc': 'Diamantes 100% naturales de mina certificados internacionalmente por GIA, HRD e IGI.',
+            'action_text': 'Explorar Diamantes Naturales →',
+            'bg_type': 'natural'
+        }
+    elif selected_type in ('lab_grown', 'lab'):
+        banner_info = {
+            'title': 'Diamantes de Laboratorio',
+            'desc': 'Diamantes cultivados (Lab-Grown) de idéntica pureza, brillo y dureza con certificación oficial.',
+            'action_text': 'Explorar Lab-Grown →',
+            'bg_type': 'lab'
+        }
+    elif selected_type == 'melee_natural':
+        banner_info = {
+            'title': 'Melee Naturales',
+            'desc': 'Diamantes naturales de calibre fino (≤ 0.20 ct) ideales para pavé, montura y engastes de precisión.',
+            'action_text': 'Explorar Melee Naturales →',
+            'bg_type': 'melee_natural'
+        }
+    elif selected_type == 'melee_lab':
+        banner_info = {
+            'title': 'Melee de Laboratorio',
+            'desc': 'Diamantes melee cultivados (≤ 0.20 ct) calibrados para producción y diseños modernos.',
+            'action_text': 'Explorar Melee Laboratorio →',
+            'bg_type': 'melee_lab'
+        }
+    else:
+        banner_info = {
+            'title': 'Tienda de Diamantes',
+            'desc': 'Explora nuestro inventario completo de diamantes naturales y lab-grown certificados por GIA, IGI y HRD.',
+            'action_text': 'Explorar Catálogo →',
+            'bg_type': 'tienda'
+        }
+
+    query_params = request.GET.copy()
+    if 'page' in query_params:
+        query_params.pop('page')
+    url_params = query_params.urlencode()
+
     return render(request, 'tienda.html', {
-        'diamonds': page_obj.object_list,
-        'total_count': paginator.count,
-        'page': page_obj.number,
-        'total_pages': paginator.num_pages,
-        'has_prev': page_obj.has_previous(),
-        'has_next': page_obj.has_next(),
-        'prev_page': page_obj.previous_page_number() if page_obj.has_previous() else 1,
-        'next_page': page_obj.next_page_number() if page_obj.has_next() else 1,
+        'diamonds': diamonds_list,
+        'total_count': total_count,
+        'page': page_obj_number,
+        'total_pages': total_pages,
+        'has_prev': page_obj_has_previous,
+        'has_next': page_obj_has_next,
+        'prev_page': page_obj_previous_page_number,
+        'next_page': page_obj_next_page_number,
+        'url_params': url_params,
+        'selected_tipo': selected_type,
+        'selected_subtipo': selected_subtipo,
         'selected_shapes': selected_shapes,
         'selected_colors': selected_colors,
         'selected_clarities': selected_clarities,
         'selected_cuts': selected_cuts,
         'selected_labs': selected_labs,
+        'has_image': has_image,
+        'has_video': has_video,
+        'returnable': returnable,
+        'express': express,
         'min_carats': min_carats or '',
         'max_carats': max_carats or '',
         'min_price': min_price or '',
@@ -198,6 +349,7 @@ def tienda(request):
         'cart_count': cart_count,
         'whatsapp_url': whatsapp_url,
         'whatsapp_number': whatsapp_number,
+        'banner_info': banner_info,
     })
 
 
@@ -208,6 +360,34 @@ def productos(request, producto_id=None):
     if diamond_id:
         from django.db.models import Q
         producto = Product.objects.filter(Q(id=int(diamond_id) if str(diamond_id).isdigit() else 0) | Q(nivoda_id=diamond_id)).first()
+        
+        # If not found locally, fetch from live API and cache it
+        if not producto:
+            diamond_data = NivodaAPI.get_diamond_by_id(diamond_id)
+            if diamond_data:
+                from decimal import Decimal
+                carats = diamond_data.get('carats', 0.0)
+                shape = diamond_data.get('shape', 'ROUND')
+                lab = diamond_data.get('lab', 'GIA')
+                title = f"Diamante {carats} ct {shape} ({diamond_data.get('color', '-')}/{diamond_data.get('clarity', '-')} - {lab})"
+                producto = Product.objects.create(
+                    nivoda_id=diamond_id,
+                    nombre=title,
+                    descripcion=f"Diamante certificado por {lab}. Certificado #: {diamond_data.get('cert_number', 'N/A')}",
+                    precio=Decimal(str(diamond_data.get('price', 0))),
+                    shape=shape,
+                    carats=Decimal(str(carats)) if carats else Decimal('0'),
+                    color=diamond_data.get('color', ''),
+                    clarity=diamond_data.get('clarity', ''),
+                    cut=diamond_data.get('cut', ''),
+                    lab=lab,
+                    cert_number=diamond_data.get('cert_number', ''),
+                    cert_pdf=diamond_data.get('pdf_url', ''),
+                    image_url=diamond_data.get('image', ''),
+                    video_url=diamond_data.get('video', ''),
+                    v360_url=diamond_data.get('v360', ''),
+                    is_diamond=True,
+                )
     elif producto_id:
         producto = get_object_or_404(Product, id=producto_id)
 
@@ -254,6 +434,34 @@ def orden_add(request):
 
     from django.db.models import Q
     prod = Product.objects.filter(Q(id=int(target_id) if str(target_id).isdigit() else 0) | Q(nivoda_id=target_id)).first()
+
+    # If not found locally and looks like a Nivoda ID, fetch and cache
+    if not prod and not str(target_id).isdigit():
+        diamond_data = NivodaAPI.get_diamond_by_id(target_id)
+        if diamond_data:
+            from decimal import Decimal
+            carats = diamond_data.get('carats', 0.0)
+            shape = diamond_data.get('shape', 'ROUND')
+            lab = diamond_data.get('lab', 'GIA')
+            title = f"Diamante {carats} ct {shape} ({diamond_data.get('color', '-')}/{diamond_data.get('clarity', '-')} - {lab})"
+            prod = Product.objects.create(
+                nivoda_id=target_id,
+                nombre=title,
+                descripcion=f"Diamante certificado por {lab}. Certificado #: {diamond_data.get('cert_number', 'N/A')}",
+                precio=Decimal(str(diamond_data.get('price', 0))),
+                shape=shape,
+                carats=Decimal(str(carats)) if carats else Decimal('0'),
+                color=diamond_data.get('color', ''),
+                clarity=diamond_data.get('clarity', ''),
+                cut=diamond_data.get('cut', ''),
+                lab=lab,
+                cert_number=diamond_data.get('cert_number', ''),
+                cert_pdf=diamond_data.get('pdf_url', ''),
+                image_url=diamond_data.get('image', ''),
+                video_url=diamond_data.get('video', ''),
+                v360_url=diamond_data.get('v360', ''),
+                is_diamond=True,
+            )
 
     if not prod:
         messages.error(request, 'El diamante o producto seleccionado no está disponible.')

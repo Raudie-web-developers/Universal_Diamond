@@ -19,7 +19,7 @@
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <!-- Design System -->
-  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
   <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,17 +38,39 @@
     <!-- Logo -->
     <a href="{% url 'index' %}" class="header-logo d-flex align-items-center gap-3 text-decoration-none">
       <div class="d-flex flex-column lh-1">
-        <span class="header-brand-name" style="font-family:'Silver Queeny',Georgia,serif; font-size:1.3rem; font-weight:400; color:#1C1810; letter-spacing:0.095em;">UNIVERSAL</span>
-        <span class="header-brand-sub" style="font-size:0.6rem; color:#B8962E; letter-spacing:0.38em; font-weight:600; text-transform:uppercase; margin-top:2px;">DIAMOND</span>
+        <span class="header-brand-name" style="font-family:'Silver Queeny',Georgia,serif; font-size:1.3rem; font-weight:400; letter-spacing:0.095em;">UNIVERSAL</span>
+        <span class="header-brand-sub" style="font-size:0.6rem; letter-spacing:0.38em; font-weight:600; text-transform:uppercase; margin-top:2px;">DIAMOND</span>
       </div>
     </a>
 
     <!-- Desktop Nav — se oculta en < 992px -->
-    <nav class="header-nav d-none d-lg-flex">
-      <a href="{% url 'index' %}" class="nav-link">Inicio</a>
-      <a href="{% url 'tienda' %}" class="nav-link nav-link--highlight">Buscador</a>
-      <a href="{% url 'index' %}#formas" class="nav-link">Cortes &amp; Formas</a>
-      <a href="{% url 'index' %}#certificaciones" class="nav-link">GIA / IGI</a>
+    <nav class="header-nav d-none d-lg-flex align-items-center">
+      <!-- 0. Tienda -->
+      <a href="{% url 'tienda' %}" class="nav-link {% if not selected_tipo %}active{% endif %}">
+        Tienda
+      </a>
+
+      <!-- 1. Diamantes naturales -->
+      <a href="{% url 'tienda' %}?tipo=natural" class="nav-link {% if selected_tipo == 'natural' %}active{% endif %}">
+        Diamantes naturales
+      </a>
+
+      <!-- 2. Diamantes de laboratorio -->
+      <a href="{% url 'tienda' %}?tipo=lab_grown" class="nav-link {% if selected_tipo == 'lab_grown' or selected_tipo == 'lab' %}active{% endif %}">
+        Diamantes de laboratorio
+      </a>
+
+      <!-- 3. Melee naturales -->
+      <a href="{% url 'tienda' %}?tipo=melee_natural" class="nav-link {% if selected_tipo == 'melee_natural' %}active{% endif %}">
+        Melee naturales
+      </a>
+
+      <!-- 4. Melee de laboratorio -->
+      <a href="{% url 'tienda' %}?tipo=melee_lab" class="nav-link {% if selected_tipo == 'melee_lab' %}active{% endif %}">
+        Melee de laboratorio
+      </a>
+
+      <!-- Carrito header -->
       <a href="{% url 'orden' %}" class="btn-cart-header ms-3">
         <i class="fas fa-shopping-bag"></i>
         <span>Orden Diamantes</span>
@@ -93,13 +115,19 @@
         <i class="fas fa-home me-3" style="color:var(--gold);width:16px;"></i>Inicio
       </a>
       <a href="{% url 'tienda' %}" class="mobile-nav-link">
-        <i class="fas fa-gem me-3" style="color:var(--gold);width:16px;"></i>Buscador
+        <i class="fas fa-store me-3" style="color:var(--gold);width:16px;"></i>Tienda
       </a>
-      <a href="{% url 'index' %}#formas" class="mobile-nav-link">
-        <i class="fas fa-shapes me-3" style="color:var(--gold);width:16px;"></i>Cortes &amp; Formas
+      <a href="{% url 'tienda' %}?tipo=natural" class="mobile-nav-link">
+        <i class="fas fa-gem me-3" style="color:var(--gold);width:16px;"></i>Diamantes naturales
       </a>
-      <a href="{% url 'index' %}#certificaciones" class="mobile-nav-link">
-        <i class="fas fa-certificate me-3" style="color:var(--gold);width:16px;"></i>GIA / IGI
+      <a href="{% url 'tienda' %}?tipo=lab_grown" class="mobile-nav-link">
+        <i class="fas fa-flask me-3" style="color:var(--gold);width:16px;"></i>Diamantes de laboratorio
+      </a>
+      <a href="{% url 'tienda' %}?tipo=melee_natural" class="mobile-nav-link">
+        <i class="fas fa-border-all me-3" style="color:var(--gold);width:16px;"></i>Melee naturales
+      </a>
+      <a href="{% url 'tienda' %}?tipo=melee_lab" class="mobile-nav-link">
+        <i class="fas fa-microchip me-3" style="color:var(--gold);width:16px;"></i>Melee de laboratorio
       </a>
       <a href="{% url 'orden' %}" class="mobile-nav-link">
         <i class="fas fa-shopping-bag me-3" style="color:var(--gold);width:16px;"></i>
@@ -220,12 +248,16 @@
           <i class="fas fa-map-marker-alt"></i>
           <span>CC Tolón Fashion Mall, Piso 5, Local 5–05<br>Av. Principal Las Mercedes, Caracas</span>
         </div>
+        <div class="footer-contact-item">
+          <i class="fas fa-id-card"></i>
+          <span>RIF: J-50673866-0</span>
+        </div>
       </div>
 
     </div>
 
     <div class="footer-bottom">
-      <span class="footer-copy">&copy; {{ now|date:"Y" }} Universal Diamond. Todos los derechos reservados.</span>
+      <span class="footer-copy">&copy; {{ now|date:"Y" }} Universal Diamond. RIF: J-50673866-0. Todos los derechos reservados.</span>
       <span class="footer-credits">
         Diseñado por <a href="https://raudie.net" target="_blank" rel="noopener">Raudie</a>
       </span>
