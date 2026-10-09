@@ -5,4 +5,4 @@ packaging==25.0
 reportlab
 sqlparse==0.5.3
 pymysql
-pillow
+pillowpytz==2026.5

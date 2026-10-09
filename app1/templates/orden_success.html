@@ -1,20 +1,46 @@
 {% extends 'base_index.html' %}
+{% block header_class %}header-light{% endblock %}
 
-{% block title %}Orden enviada{% endblock %}
+{% block title %}Orden enviada | Universal Diamond{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="alert alert-success">
-        <h4 class="alert-heading">Orden enviada</h4>
-        <p>Gracias. Su orden (ID: {{ orden.id }}) ha sido creada. Se ha generado un enlace para notificar a ventas por WhatsApp.</p>
+<section class="py-6" style="background: var(--cream); min-height: 70vh; display: flex; align-items: center;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6 text-center">
+                <div style="background: var(--white); padding: 4rem 3rem; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 40px rgba(184,150,46,0.06);">
+                    
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--gold-pale); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 2rem;">
+                        <i class="fas fa-check"></i>
+                    </div>
+
+                    <span class="eyebrow d-block mb-3" style="color:var(--gold); letter-spacing:0.3em; font-size:0.75rem; font-weight:600; text-transform:uppercase;">Confirmación</span>
+                    
+                    <h2 class="mb-4" style="font-family: var(--font-display); font-size: 2.8rem; color: var(--ink); line-height: 1.2;">Orden <em style="color: var(--gold); font-style: normal;">Enviada</em></h2>
+                    
+                    <p style="color: var(--ink-soft); font-size: 0.95rem; line-height: 1.8; margin-bottom: 2.5rem;">
+                        Gracias por confiar en nosotros. Su orden <strong>(ID: {{ orden.id }})</strong> ha sido creada exitosamente. Se abrirá automáticamente un enlace para notificar a nuestro equipo de ventas a través de WhatsApp.
+                    </p>
+
+                    <a href="{% url 'tienda' %}" class="btn btn-primary" style="background: var(--gold); border: 1px solid var(--gold); color: var(--white); padding: 1rem 2.5rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; font-size: 0.8rem; border-radius: 0; transition: all 0.3s ease;">
+                        Volver a la Tienda
+                    </a>
+
+                </div>
+            </div>
+        </div>
     </div>
-    <a href="{% url 'tienda' %}" class="btn btn-primary">Volver a la tienda</a>
-</div>
+</section>
 
 <a href="{{ whatsapp_url }}" target="_blank" id="whatsapp-link" style="display:none;"></a>
 <script>
 window.addEventListener('load', function() {
-    document.getElementById('whatsapp-link').click();
+    // Un pequeño retraso para que el usuario pueda leer la pantalla de éxito antes de que se abra WhatsApp
+    setTimeout(function() {
+        if(document.getElementById('whatsapp-link').href) {
+            document.getElementById('whatsapp-link').click();
+        }
+    }, 1200);
 });
 </script>
 {% endblock %}

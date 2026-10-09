@@ -47,55 +47,55 @@
       <div class="section-divider"><span>◇</span></div>
     </div>
 
-    <div class="row g-3 justify-content-center">
-      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-        <a href="{% url 'tienda' %}?shape=ROUND" class="shape-card">
-          <span class="shape-icon">
-            <img src="{% static 'images/icon/icono_round.png' %}" alt="Round">
-          </span>
-          <span class="shape-label">Round</span>
-        </a>
-      </div>
-      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-        <a href="{% url 'tienda' %}?shape=OVAL" class="shape-card">
-          <span class="shape-icon">
-            <img src="{% static 'images/icon/icono_oval.png' %}" alt="Oval">
-          </span>
-          <span class="shape-label">Oval</span>
-        </a>
-      </div>
-      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-        <a href="{% url 'tienda' %}?shape=CUSHION" class="shape-card">
-          <span class="shape-icon">
-            <img src="{% static 'images/icon/icono_cushion.png' %}" alt="Cushion">
-          </span>
-          <span class="shape-label">Cushion</span>
-        </a>
-      </div>
-      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-        <a href="{% url 'tienda' %}?shape=PRINCESS" class="shape-card">
-          <span class="shape-icon">
-            <img src="{% static 'images/icon/icono_princess.png' %}" alt="Princess">
-          </span>
-          <span class="shape-label">Princess</span>
-        </a>
-      </div>
-      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-        <a href="{% url 'tienda' %}?shape=EMERALD" class="shape-card">
-          <span class="shape-icon">
-            <img src="{% static 'images/icon/icono_emerald.png' %}" alt="Emerald">
-          </span>
-          <span class="shape-label">Emerald</span>
-        </a>
-      </div>
-      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-        <a href="{% url 'tienda' %}?shape=PEAR" class="shape-card">
-          <span class="shape-icon">
-            <img src="{% static 'images/icon/icono_peard.png' %}" alt="Pear">
-          </span>
-          <span class="shape-label">Pear</span>
-        </a>
-      </div>
+    <div class="cat-circles-track mt-4" style="flex-wrap: wrap; gap: 3rem;">
+      <a href="{% url 'tienda' %}?shape=ROUND" class="cat-circle-item">
+        <div class="cat-circle-wrap">
+          <div class="cat-circle-img-outer" style="background: var(--cream-2);">
+            <img src="{% static 'images/icon/icono_round.png' %}" alt="Round" style="object-fit: contain; padding: 12px; mix-blend-mode: multiply;">
+          </div>
+        </div>
+        <span class="cat-circle-label" style="margin-top: 15px; font-size: 1.25rem;">Round</span>
+      </a>
+      <a href="{% url 'tienda' %}?shape=OVAL" class="cat-circle-item">
+        <div class="cat-circle-wrap">
+          <div class="cat-circle-img-outer" style="background: var(--cream-2);">
+            <img src="{% static 'images/icon/icono_oval.png' %}" alt="Oval" style="object-fit: contain; padding: 12px; mix-blend-mode: multiply;">
+          </div>
+        </div>
+        <span class="cat-circle-label" style="margin-top: 15px; font-size: 1.25rem;">Oval</span>
+      </a>
+      <a href="{% url 'tienda' %}?shape=CUSHION" class="cat-circle-item">
+        <div class="cat-circle-wrap">
+          <div class="cat-circle-img-outer" style="background: var(--cream-2);">
+            <img src="{% static 'images/icon/icono_cushion.png' %}" alt="Cushion" style="object-fit: contain; padding: 12px; mix-blend-mode: multiply;">
+          </div>
+        </div>
+        <span class="cat-circle-label" style="margin-top: 15px; font-size: 1.25rem;">Cushion</span>
+      </a>
+      <a href="{% url 'tienda' %}?shape=PRINCESS" class="cat-circle-item">
+        <div class="cat-circle-wrap">
+          <div class="cat-circle-img-outer" style="background: var(--cream-2);">
+            <img src="{% static 'images/icon/icono_princess.png' %}" alt="Princess" style="object-fit: contain; padding: 12px; mix-blend-mode: multiply;">
+          </div>
+        </div>
+        <span class="cat-circle-label" style="margin-top: 15px; font-size: 1.25rem;">Princess</span>
+      </a>
+      <a href="{% url 'tienda' %}?shape=EMERALD" class="cat-circle-item">
+        <div class="cat-circle-wrap">
+          <div class="cat-circle-img-outer" style="background: var(--cream-2);">
+            <img src="{% static 'images/icon/icono_emerald.png' %}" alt="Emerald" style="object-fit: contain; padding: 12px; mix-blend-mode: multiply;">
+          </div>
+        </div>
+        <span class="cat-circle-label" style="margin-top: 15px; font-size: 1.25rem;">Emerald</span>
+      </a>
+      <a href="{% url 'tienda' %}?shape=PEAR" class="cat-circle-item">
+        <div class="cat-circle-wrap">
+          <div class="cat-circle-img-outer" style="background: var(--cream-2);">
+            <img src="{% static 'images/icon/icono_peard.png' %}" alt="Pear" style="object-fit: contain; padding: 12px; mix-blend-mode: multiply;">
+          </div>
+        </div>
+        <span class="cat-circle-label" style="margin-top: 15px; font-size: 1.25rem;">Pear</span>
+      </a>
     </div>
   </div>
 </section>

@@ -94,19 +94,10 @@
               <input type="hidden" name="diamond_id" value="{{ diamond.id }}">
               <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
                 
-                <!-- Selector de Cantidad Premium -->
-                <div class="d-flex align-items-center" style="border: 1px solid var(--border-soft); background: var(--white); height: 48px; border-radius: 4px; overflow: hidden;">
-                  <button type="button" class="btn btn-link text-dark text-decoration-none px-3 border-0 h-100 rounded-0 d-flex align-items-center justify-content-center" onclick="let i=this.parentNode.querySelector('input'); i.value = Math.max(1, parseInt(i.value)-1);" style="box-shadow: none; background: #f8f9fa; width: 40px;">
-                    <i class="fas fa-minus" style="font-size: 0.7rem;"></i>
-                  </button>
-                  <input type="text" min="1" name="cantidad" value="1" class="form-control text-center border-0 bg-transparent p-0 h-100 rounded-0" readonly style="width: 50px; font-weight: 500; font-family: var(--font-body); box-shadow: none; font-size: 1rem;">
-                  <button type="button" class="btn btn-link text-dark text-decoration-none px-3 border-0 h-100 rounded-0 d-flex align-items-center justify-content-center" onclick="let i=this.parentNode.querySelector('input'); i.value = parseInt(i.value)+1;" style="box-shadow: none; background: #f8f9fa; width: 40px;">
-                    <i class="fas fa-plus" style="font-size: 0.7rem;"></i>
-                  </button>
-                </div>
-                
+                <!-- Selector de Cantidad Premium Oculto (siempre 1 para diamantes únicos) -->
+                <input type="hidden" name="cantidad" value="1">
                 <button type="submit" class="btn btn-primary flex-grow-1" style="height: 48px; display: flex; align-items: center; justify-content: center; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;">
-                  <i class="fas fa-shopping-bag me-2"></i>Añadir a mi Orden
+                  <i class="fas fa-shopping-bag me-2"></i><span>Añadir a mi Orden</span>
                 </button>
               </div>
             </form>

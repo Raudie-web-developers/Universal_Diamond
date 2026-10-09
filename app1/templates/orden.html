@@ -68,7 +68,7 @@
       <!-- Order summary -->
       <div class="col-lg-8">
 
-        <span class="cart-section-label">Productos Seleccionados</span>
+        <h2 class="mb-4" style="font-family: var(--font-display); font-size: 2.2rem; color: var(--ink); font-weight: 400;">Productos <em style="color: var(--gold); font-style: normal;">Seleccionados</em></h2>
 
         <div class="order-table">
           <div class="table-responsive">
@@ -91,14 +91,14 @@
                       <div class="cart-product-dot"></div>
                       <div>
                         {% if it.is_diamond %}
-                          <div class="cart-product-name text-primary font-weight-bold">
-                            <i class="fas fa-gem me-1 text-gold-dim"></i>{{ it.nombre }}
+                          <div class="cart-product-name" style="font-size: 1.3rem; margin-bottom: 0.2rem;">
+                            <i class="fas fa-gem me-2" style="color: var(--gold); font-size: 0.9rem; position: relative; top: -2px;"></i>{{ it.nombre }}
                           </div>
                           <div class="cart-product-ref small text-muted">
                             Certificado {{ it.diamond_data.lab }}: {{ it.diamond_data.cert_number|default:"N/A" }}
                           </div>
                         {% else %}
-                          <div class="cart-product-name">{{ it.nombre }}</div>
+                          <div class="cart-product-name" style="font-size: 1.3rem; margin-bottom: 0.2rem;">{{ it.nombre }}</div>
                           <div class="cart-product-ref">Ref. #{{ it.product.id }}</div>
                         {% endif %}
                       </div>

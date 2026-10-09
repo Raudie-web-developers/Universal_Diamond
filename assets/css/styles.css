@@ -1944,15 +1944,15 @@ a.contact-info-item:hover .contact-info-icon { background: rgba(184,150,46,0.18)
    TYPOGRAPHY ENHANCEMENTS (LUXURY EDITORIAL)
 ═══════════════════════════════════════════════════════ */
 .nav-link {
-  font-size: 0.75rem !important;
+  font-size: 0.65rem !important;
   font-weight: 500 !important;
-  letter-spacing: 0.15em !important;
+  letter-spacing: 0.12em !important;
   color: var(--white) !important;
-  text-shadow: 0 2px 5px rgba(0,0,0,0.7) !important;
+  white-space: nowrap !important;
 }
-.header.scrolled .nav-link {
+.header.scrolled .nav-link,
+.header-light .nav-link {
   color: var(--ink-soft) !important;
-  text-shadow: none !important;
 }
 .nav-link:hover, .nav-link.active {
   color: var(--gold) !important;
